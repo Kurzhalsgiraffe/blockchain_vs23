@@ -111,15 +111,17 @@ public class Block implements java.io.Serializable {
 
 		// Konvertierung des als Bytearray berechneten Hashcodes nach Stringbuffer
 		StringBuffer buffer = new StringBuffer();
-		for (byte b : bytes)
+		for (byte b : bytes) {
 			buffer.append(String.format("%02x", b));
+		}
 		return buffer.toString();
 	}
 
 	private String getDataAsString() {
 		int result = 0;
-		for (int i = 0; i < dataAsObject.length; i++)
+		for (int i = 0; i < dataAsObject.length; i++) {
 			result += dataAsObject[i];
+		}
 		return String.format("%s", result);
 	}
 

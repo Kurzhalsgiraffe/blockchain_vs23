@@ -41,6 +41,7 @@ public class Main {
 
 			List<Block> blockList = new ArrayList<Block>();
 
+//EinrichtenMiner
 			if (args[0].equals("EinrichtenMiner")) {
 				InitBlockchainManagerMiner initForMiner = new InitBlockchainManagerMiner("BlockchainMiner", miner, minerPassword);
 				try {
@@ -49,6 +50,7 @@ public class Main {
 					e2.printStackTrace();
 				}
 
+//ErsterLoginErsterBenutzer
 			} else if (args[0].equals("ErsterLoginErsterBenutzer")) {
 				InitBlockchainManager initForUser = new InitBlockchainManager("FirstUser", firstUser, firstPassword);
 				try {
@@ -94,6 +96,8 @@ public class Main {
 				} catch (TargetListNotEmptyException e) {
 					e.printStackTrace();
 				}
+
+//ZweiterLoginErsterBenutzer
 			} else if (args[0].equals("ZweiterLoginErsterBenutzer")) {
 				InitBlockchainManager initForUser = new InitBlockchainManager("FirstUser", firstUser, firstPassword);
 				try {
@@ -114,8 +118,7 @@ public class Main {
 					e1.printStackTrace();
 				}
 
-				System.out.println(
-						"blockManagerFirstUser.getIdFromLastBlock() = " + blockManagerFirstUser.getIdFromLastBlock());
+				System.out.println("blockManagerFirstUser.getIdFromLastBlock() = " + blockManagerFirstUser.getIdFromLastBlock());
 
 				// Kopiere alle Bloecke vom Miner, die nach dem letzten Block auf der DB des ersten Benutzes gespeichert wurden
 				try {
@@ -133,8 +136,7 @@ public class Main {
 						// blockManagerMiner.doSomethingWithTheBlock(blockArray[i], user);
 
 						blockManagerMiner.append(blockArray[i]); // Speichern des Blocks auf DB des Miners
-						blockManagerFirstUser.copyList(
-								blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock()));
+						blockManagerFirstUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock()));
 					}
 				} catch (SaveException e) {
 					e.printStackTrace();
@@ -143,9 +145,10 @@ public class Main {
 				} catch (TargetListNotEmptyException e) {
 					e.printStackTrace();
 				}
+
+//LoginZweiterBenutzer
 			} else if (args[0].equals("LoginZweiterBenutzer")) {
-				InitBlockchainManager initForSecondUser = new InitBlockchainManager("SecondUser", secondUser,
-						secondPassword);
+				InitBlockchainManager initForSecondUser = new InitBlockchainManager("SecondUser", secondUser, secondPassword);
 				try {
 					initForSecondUser.initDatabase(); // initialisiere Datenbank fuer User
 				} catch (InitializationAlreadyDoneException e2) {
@@ -194,6 +197,8 @@ public class Main {
 				} catch (TargetListNotEmptyException e) {
 					e.printStackTrace();
 				}
+
+//Read
 			} else if (args[0].equals("Read")) {
 				// Auslesen der Bloecke fuer Miner
 				System.out.println("---------------------------------");
@@ -206,8 +211,7 @@ public class Main {
 				System.out.println("Ausgabe der Blockliste des Miners mit Beschraenkung auf Daten");
 				for (Block obj : blockManagerMiner.list()) {
 					System.out.println("\nDatum als Bytearray = " + Arrays.toString(obj.getDataAsObject()));
-					System.out.println("von Bytearray zurueckkonvertiertes Datum als Text = "
-							+ new String(obj.getDataAsObject(), StandardCharsets.UTF_8));
+					System.out.println("von Bytearray zurueckkonvertiertes Datum als Text = " + new String(obj.getDataAsObject(), StandardCharsets.UTF_8));
 				}
 
 				System.out.println("---------------------------------");
@@ -215,13 +219,16 @@ public class Main {
 				System.out.println("Ausgabe der Blockliste des Users mit Beschraenkung auf Daten");
 				for (Block obj : blockManagerFirstUser.list()) {
 					System.out.println("\nDatum als Bytearray = " + Arrays.toString(obj.getDataAsObject()));
-					System.out.println("von Bytearray zurueckkonvertiertes Datum als Text = "
-							+ new String(obj.getDataAsObject(), StandardCharsets.UTF_8));
+					System.out.println("von Bytearray zurueckkonvertiertes Datum als Text = " + new String(obj.getDataAsObject(), StandardCharsets.UTF_8));
 				}
+
+//Validate
 			} else if (args[0].equals("Validate")) {
 				// Validierung kann einfach ueberprueft werden, wenn Block in Miner manipuliert wird
 				BlockValidator blockvalidator = blockManagerMiner.validateBlockChain(blockManagerMiner.list());
 				System.out.println("blockvalidator = " + blockvalidator);
+
+//DoSomethingWithTheBlock
 			} else if (args[0].equals("DoSomethingWithTheBlock")) {
 				int numberCoronaVaccinations = 0;
 				for (Block obj : blockManagerFirstUser.list()) {
