@@ -14,8 +14,7 @@ import model.block.Block;
 public class Main {
 
 	public static void usage() {
-		System.out.println("Usage: java Main EinrichtenMiner"); // zuerst auszufuehren, alternativ SQL-Skript fuer Miner
-																// ausfuehren
+		System.out.println("Usage: java Main EinrichtenMiner"); // zuerst auszufuehren, alternativ SQL-Skript fuer Miner ausfuehren
 		System.out.println("Usage: java Main ErsterLoginErsterBenutzer");  // Schritt 2
 		System.out.println("Usage: java Main ZweiterLoginErsterBenutzer"); // Schritt 3 oder 4
 		System.out.println("Usage: java Main LoginZweiterBenutzer");       // Schritt 2 oder 4
@@ -43,22 +42,21 @@ public class Main {
 			List<Block> blockList = new ArrayList<Block>();
 
 			if (args[0].equals("EinrichtenMiner")) {
-				InitBlockchainManagerMiner initForMiner = new InitBlockchainManagerMiner("BlockchainMiner", miner,
-						minerPassword);
+				InitBlockchainManagerMiner initForMiner = new InitBlockchainManagerMiner("BlockchainMiner", miner, minerPassword);
 				try {
 					initForMiner.initDatabase(); // initialisiere Datenbank fuer Miner
 				} catch (InitializationAlreadyDoneException e2) {
-					// TODO Auto-generated catch block
 					e2.printStackTrace();
 				}
+
 			} else if (args[0].equals("ErsterLoginErsterBenutzer")) {
 				InitBlockchainManager initForUser = new InitBlockchainManager("FirstUser", firstUser, firstPassword);
 				try {
 					initForUser.initDatabase(); // initialisiere Datenbank fuer User
 				} catch (InitializationAlreadyDoneException e2) {
-					// TODO Auto-generated catch block
 					e2.printStackTrace();
 				}
+
 				Block[] blockArray = new Block[4];
 				try {
 					// Parameter "0" = prefix
@@ -67,12 +65,11 @@ public class Main {
 					blockArray[2] = new Block((firstUser + "erste Impfung gegen Tetanus").getBytes(), 0);
 					blockArray[3] = new Block((firstUser + "dritte Corona-Impfung mit Moderna").getBytes(), 0);
 				} catch (NoSuchAlgorithmException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				} catch (UnsupportedEncodingException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
+
 				List<Block> myBlockList = blockManagerMiner
 						.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock());
 				for (Block block : myBlockList) {
@@ -88,17 +85,13 @@ public class Main {
 						// blockManagerMiner.doSomethingWithTheBlock(blockArray[i], user);
 
 						blockManagerMiner.append(blockArray[i]); // Speichern des Blocks auf DB des Miners
-						blockManagerFirstUser.copyList(
-								blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock()));
+						blockManagerFirstUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock()));
 					}
 				} catch (SaveException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (NoEntityFoundException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (TargetListNotEmptyException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			} else if (args[0].equals("ZweiterLoginErsterBenutzer")) {
@@ -106,9 +99,9 @@ public class Main {
 				try {
 					initForUser.initDatabase(); // initialisiere Datenbank fuer User
 				} catch (InitializationAlreadyDoneException e2) {
-					// TODO Auto-generated catch block
 					e2.printStackTrace();
 				}
+
 				Block[] blockArray = new Block[3];
 				try {
 					// Parameter "0" = prefix
@@ -116,23 +109,19 @@ public class Main {
 					blockArray[1] = new Block((firstUser + "zweite Impfung gegen Tetanus").getBytes(), 0);
 					blockArray[2] = new Block((firstUser + "vierte Corona-Impfung mit Biontech").getBytes(), 0);
 				} catch (NoSuchAlgorithmException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				} catch (UnsupportedEncodingException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 
 				System.out.println(
 						"blockManagerFirstUser.getIdFromLastBlock() = " + blockManagerFirstUser.getIdFromLastBlock());
 
-				// Kopiere alle Bloecke vom Miner, die nach dem letzten Block auf der DB des
-				// ersten Benutzes gespeichert wurden
+				// Kopiere alle Bloecke vom Miner, die nach dem letzten Block auf der DB des ersten Benutzes gespeichert wurden
 				try {
 					blockManagerFirstUser
 							.copyList(blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock()));
 				} catch (TargetListNotEmptyException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 				// Speicherung der neuen Bloecke fuer Miner und Benutzer
@@ -148,13 +137,10 @@ public class Main {
 								blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock()));
 					}
 				} catch (SaveException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (NoEntityFoundException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (TargetListNotEmptyException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			} else if (args[0].equals("LoginZweiterBenutzer")) {
@@ -163,7 +149,6 @@ public class Main {
 				try {
 					initForSecondUser.initDatabase(); // initialisiere Datenbank fuer User
 				} catch (InitializationAlreadyDoneException e2) {
-					// TODO Auto-generated catch block
 					e2.printStackTrace();
 				}
 				Block[] blockArray = new Block[2];
@@ -172,10 +157,8 @@ public class Main {
 					blockArray[0] = new Block((secondUser + "Guertelrose-Impfung").getBytes(), 0); // 0
 					blockArray[1] = new Block((secondUser + "erste Corona Impfung").getBytes(), 0); // 0
 				} catch (NoSuchAlgorithmException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				} catch (UnsupportedEncodingException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 
@@ -187,10 +170,8 @@ public class Main {
 						Block newBlock = block.copy();
 						blockManagerSecondUser.append(newBlock);
 					} catch (SaveException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					} catch (NoEntityFoundException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -204,17 +185,13 @@ public class Main {
 						// blockManagerMiner.doSomethingWithTheBlock(blockArray[i], user);
 
 						blockManagerMiner.append(blockArray[i]); // Speichern des Blocks auf DB des Miners
-						blockManagerSecondUser.copyList(
-								blockManagerMiner.getBlockListFromId(blockManagerSecondUser.getIdFromLastBlock()));
+						blockManagerSecondUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerSecondUser.getIdFromLastBlock()));
 					}
 				} catch (SaveException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (NoEntityFoundException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (TargetListNotEmptyException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			} else if (args[0].equals("Read")) {
@@ -242,8 +219,7 @@ public class Main {
 							+ new String(obj.getDataAsObject(), StandardCharsets.UTF_8));
 				}
 			} else if (args[0].equals("Validate")) {
-				// Validierung kann einfach ueberprueft werden, wenn Block in Miner manipuliert
-				// wird
+				// Validierung kann einfach ueberprueft werden, wenn Block in Miner manipuliert wird
 				BlockValidator blockvalidator = blockManagerMiner.validateBlockChain(blockManagerMiner.list());
 				System.out.println("blockvalidator = " + blockvalidator);
 			} else if (args[0].equals("DoSomethingWithTheBlock")) {
@@ -252,10 +228,9 @@ public class Main {
 					numberCoronaVaccinations += blockManagerFirstUser.doSomethingWithTheBlock(obj, "Covid-19");
 					System.out.println("numberCoronaVaccinations = " + numberCoronaVaccinations);
 				}
-			} else
+			} else {
 				usage();
+			}
 		}
-
 	}
-
 }
