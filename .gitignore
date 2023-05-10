@@ -1,0 +1,22 @@
+
+#EclipseWorkspace
+
+*/persistence.xml
+*/.classpath
+
+# eclipse specific git ignore
+.project
+.metadata
+bin/**
+tmp/**
+tmp/**/*
+*.tmp
+*.bak
+*.swp
+*~.nib
+.settings/
+.loadpath
+*.class
+
+# Locally stored "Eclipse launch configurations"
+*.launch
