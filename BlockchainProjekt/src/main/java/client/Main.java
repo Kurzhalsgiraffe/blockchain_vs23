@@ -36,38 +36,27 @@ public class Main {
 		String secondPassword = "heinzelu";
 		String secondPublicKey = "publicKeySecondUser";
 
-		if (args.length < 1)
+		if (args.length < 1) {
 			usage();
-		else {
+		} else {
 			MyBlockManager blockManagerMiner = new MyBlockManager("BlockchainMiner", miner, minerPassword);
 			MyBlockManager blockManagerFirstUser = new MyBlockManager("FirstUser", firstUser, firstPassword);
 			MyBlockManager blockManagerSecondUser = new MyBlockManager("SecondUser", secondUser, secondPassword);
 
 			List<Block> blockList = new ArrayList<Block>();
-
+	
 //EinrichtenMiner
 			if (args[0].equals("EinrichtenMiner")) {
-				InitBlockchainManagerMiner initForMiner = new InitBlockchainManagerMiner("BlockchainMiner", miner, minerPassword);
-				try {
-					initForMiner.initDatabase(); // initialisiere Datenbank fuer Miner
-				} catch (InitializationAlreadyDoneException e2) {
-					e2.printStackTrace();
-				}
+				initMiner(miner, minerPassword);
 
 //ErsterLoginErsterBenutzer
-			} else if (args[0].equals("ErsterLoginErsterBenutzer")) {
-				InitBlockchainManager initForUser = new InitBlockchainManager("FirstUser", firstUser, firstPassword);
-				try {
-					initForUser.initDatabase(); // initialisiere Datenbank fuer User
-				} catch (InitializationAlreadyDoneException e2) {
-					e2.printStackTrace();
-				}
+			} else if (args[0].equals("ErsterLoginErsterBenutzer")) {			
+				Block block = null;
+				initUser("FirstUser", firstUser, firstPassword);
 
-				Block[] blockArray = new Block[1];
 				try {
-					// Parameter "0" = prefix
 					String encryptedFirstUser = encrypt(firstUser, firstPublicKey); 
-					blockArray[0] = new Block((encryptedFirstUser + "Wahlergebnis: CDU").getBytes(), publicKeyMiner ,0);
+					block = new Block((encryptedFirstUser + "Wahlergebnis: CDU").getBytes(), publicKeyMiner ,0);
 				} catch (NoSuchAlgorithmException e1) {
 					e1.printStackTrace();
 				} catch (UnsupportedEncodingException e1) {
@@ -76,21 +65,20 @@ public class Main {
 
 				List<Block> myBlockList = blockManagerMiner
 						.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock());
-				for (Block block : myBlockList) {
-					System.out.println("block = " + block);
+				for (Block b : myBlockList) {
+					System.out.println("block = " + b);
 				}
 
 				// Speicherung der Bloecke fuer Miner und Benutzer
 				try {
-					for (int i = 0; i < blockArray.length; i++) {
-						blockList.add(blockArray[i]); // Kopiere in Liste fuer Validierung (s.u.)
-						blockArray[i].setId(blockManagerMiner.calculateNextId());
-						// je nach Anwendungsfalls ggf. vor Speicherung einzubauen!?
-						// blockManagerMiner.doSomethingWithTheBlock(blockArray[i], user);
+					blockList.add(block); // Kopiere in Liste fuer Validierung (s.u.)
+					block.setId(blockManagerMiner.calculateNextId());
+					// je nach Anwendungsfalls ggf. vor Speicherung einzubauen!?
+					// blockManagerMiner.doSomethingWithTheBlock(blockArray[i], user);
 
-						blockManagerMiner.append(blockArray[i]); // Speichern des Blocks auf DB des Miners
-						blockManagerFirstUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock()));
-					}
+					blockManagerMiner.append(block); // Speichern des Blocks auf DB des Miners
+					blockManagerFirstUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock()));
+					
 				} catch (SaveException e) {
 					e.printStackTrace();
 				} catch (NoEntityFoundException e) {
@@ -101,18 +89,13 @@ public class Main {
 
 //ZweiterLoginErsterBenutzer
 			} else if (args[0].equals("ZweiterLoginErsterBenutzer")) {
-				InitBlockchainManager initForUser = new InitBlockchainManager("FirstUser", firstUser, firstPassword);
-				try {
-					initForUser.initDatabase(); // initialisiere Datenbank fuer User
-				} catch (InitializationAlreadyDoneException e2) {
-					e2.printStackTrace();
-				}
+				Block block = null;
+				initUser("FirstUser", firstUser, firstPassword);
 
-				Block[] blockArray = new Block[3];
 				try {
 					// Parameter "0" = prefix
 					String encryptedFirstUser = encrypt(firstUser, firstPublicKey); 
-					blockArray[0] = new Block((encryptedFirstUser + "Wahlergebnis: CSU").getBytes(),publicKeyMiner, 0);
+					block = new Block((encryptedFirstUser + "Wahlergebnis: CSU").getBytes(),publicKeyMiner, 0);
 				} catch (NoSuchAlgorithmException e1) {
 					e1.printStackTrace();
 				} catch (UnsupportedEncodingException e1) {
@@ -123,22 +106,20 @@ public class Main {
 
 				// Kopiere alle Bloecke vom Miner, die nach dem letzten Block auf der DB des ersten Benutzes gespeichert wurden
 				try {
-					blockManagerFirstUser
-							.copyList(blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock()));
+					blockManagerFirstUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock()));
 				} catch (TargetListNotEmptyException e1) {
 					e1.printStackTrace();
 				}
 				// Speicherung der neuen Bloecke fuer Miner und Benutzer
 				try {
-					for (int i = 0; i < blockArray.length; i++) {
-						blockList.add(blockArray[i]); // Kopiere in Liste fuer Validierung (s.u.)
-						blockArray[i].setId(blockManagerMiner.calculateNextId());
-						// je nach Anwendungsfalls ggf. vor Speicherung einzubauen!?
-						// blockManagerMiner.doSomethingWithTheBlock(blockArray[i], user);
+					blockList.add(block); // Kopiere in Liste fuer Validierung (s.u.)
+					block.setId(blockManagerMiner.calculateNextId());
+					// je nach Anwendungsfalls ggf. vor Speicherung einzubauen!?
+					// blockManagerMiner.doSomethingWithTheBlock(blockArray[i], user);
 
-						blockManagerMiner.append(blockArray[i]); // Speichern des Blocks auf DB des Miners
-						blockManagerFirstUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock()));
-					}
+					blockManagerMiner.append(block); // Speichern des Blocks auf DB des Miners
+					blockManagerFirstUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock()));
+					
 				} catch (SaveException e) {
 					e.printStackTrace();
 				} catch (NoEntityFoundException e) {
@@ -149,17 +130,13 @@ public class Main {
 
 //LoginZweiterBenutzer
 			} else if (args[0].equals("LoginZweiterBenutzer")) {
-				InitBlockchainManager initForSecondUser = new InitBlockchainManager("SecondUser", secondUser, secondPassword);
-				try {
-					initForSecondUser.initDatabase(); // initialisiere Datenbank fuer User
-				} catch (InitializationAlreadyDoneException e2) {
-					e2.printStackTrace();
-				}
-				Block[] blockArray = new Block[1];
+				Block block = null;
+				initUser("SecondUser", secondUser, secondPassword);
+
 				try {
 					// Parameter "0" = prefix
 					String encryptedSecondUser = encrypt(secondUser, secondPublicKey);
-					blockArray[0] = new Block((encryptedSecondUser + "Wahlergebnis: FDP").getBytes(),publicKeyMiner, 0);
+					block = new Block((encryptedSecondUser + "Wahlergebnis: FDP").getBytes(),publicKeyMiner, 0);
 				} catch (NoSuchAlgorithmException e1) {
 					e1.printStackTrace();
 				} catch (UnsupportedEncodingException e1) {
@@ -168,10 +145,10 @@ public class Main {
 
 				// Kopiere zuerst Liste von Miner
 				List<Block> newList = blockManagerMiner.list();
-				for (Block block : newList) {
-					System.out.println("block = " + block);
+				for (Block b : newList) {
+					System.out.println("block = " + b);
 					try {
-						Block newBlock = block.copy();
+						Block newBlock = b.copy();
 						blockManagerSecondUser.append(newBlock);
 					} catch (SaveException e) {
 						e.printStackTrace();
@@ -182,15 +159,13 @@ public class Main {
 
 				// Speicherung der Bloecke fuer Miner und Benutzer (secondUser)
 				try {
-					for (int i = 0; i < blockArray.length; i++) {
-						blockList.add(blockArray[i]); // Kopiere in Liste fuer Validierung (s.u.)
-						blockArray[i].setId(blockManagerMiner.calculateNextId());
+						blockList.add(block); // Kopiere in Liste fuer Validierung (s.u.)
+						block.setId(blockManagerMiner.calculateNextId());
 						// je nach Anwendungsfalls ggf. vor Speicherung einzubauen!?
 						// blockManagerMiner.doSomethingWithTheBlock(blockArray[i], user);
 
-						blockManagerMiner.append(blockArray[i]); // Speichern des Blocks auf DB des Miners
+						blockManagerMiner.append(block); // Speichern des Blocks auf DB des Miners
 						blockManagerSecondUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerSecondUser.getIdFromLastBlock()));
-					}
 				} catch (SaveException e) {
 					e.printStackTrace();
 				} catch (NoEntityFoundException e) {
@@ -236,12 +211,32 @@ public class Main {
 					numberCoronaVaccinations += blockManagerFirstUser.doSomethingWithTheBlock(obj, "Covid-19");
 					System.out.println("numberCoronaVaccinations = " + numberCoronaVaccinations);
 				}
+
 			} else {
 				usage();
 			}
 		}
 		
 	}
+	
+	public static void initMiner(String miner, String minerPassword) {
+		InitBlockchainManagerMiner initForMiner = new InitBlockchainManagerMiner("BlockchainMiner", miner, minerPassword);
+		try {
+			initForMiner.initDatabase(); // initialisiere Datenbank fuer Miner
+		} catch (InitializationAlreadyDoneException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void initUser(String persistanceUnit, String username, String userPassword) {
+		InitBlockchainManager initForUser = new InitBlockchainManager(persistanceUnit, username, userPassword);
+		try {
+			initForUser.initDatabase(); // initialisiere Datenbank fuer User
+		} catch (InitializationAlreadyDoneException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public static String encrypt(String UserName, String publicKey) throws UnsupportedEncodingException, NoSuchAlgorithmException {
 		MessageDigest digest = MessageDigest.getInstance("SHA-1");
 		String encryptUserName = digest.digest((UserName + publicKey).getBytes("UTF-8")).toString();
