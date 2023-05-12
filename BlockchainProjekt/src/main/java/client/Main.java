@@ -74,7 +74,7 @@ public class Main {
 					blockList.add(block); // Kopiere in Liste fuer Validierung (s.u.)
 					block.setId(blockManagerMiner.calculateNextId());
 					// je nach Anwendungsfalls ggf. vor Speicherung einzubauen!?
-					// blockManagerMiner.doSomethingWithTheBlock(blockArray[i], user);
+					// blockManagerMiner.doSomethingWithTheBlock(block, user);
 
 					blockManagerMiner.append(block); // Speichern des Blocks auf DB des Miners
 					blockManagerFirstUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock()));
@@ -115,7 +115,7 @@ public class Main {
 					blockList.add(block); // Kopiere in Liste fuer Validierung (s.u.)
 					block.setId(blockManagerMiner.calculateNextId());
 					// je nach Anwendungsfalls ggf. vor Speicherung einzubauen!?
-					// blockManagerMiner.doSomethingWithTheBlock(blockArray[i], user);
+					// blockManagerMiner.doSomethingWithTheBlock(block, user);
 
 					blockManagerMiner.append(block); // Speichern des Blocks auf DB des Miners
 					blockManagerFirstUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock()));
@@ -162,7 +162,7 @@ public class Main {
 						blockList.add(block); // Kopiere in Liste fuer Validierung (s.u.)
 						block.setId(blockManagerMiner.calculateNextId());
 						// je nach Anwendungsfalls ggf. vor Speicherung einzubauen!?
-						// blockManagerMiner.doSomethingWithTheBlock(blockArray[i], user);
+						// blockManagerMiner.doSomethingWithTheBlock(block, user);
 
 						blockManagerMiner.append(block); // Speichern des Blocks auf DB des Miners
 						blockManagerSecondUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerSecondUser.getIdFromLastBlock()));
