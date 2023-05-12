@@ -3,6 +3,7 @@ package client;
 import java.io.UnsupportedEncodingException;
 
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,10 +28,13 @@ public class Main {
 		// Zu ersetzen mit konkreten User-Angaben
 		String miner = "minerProjektVS_SS23";          
 		String minerPassword = "minerProjektVS_SS23";
+		String publicKeyMiner = "publicKeyMiner";
 		String firstUser = "hantscma";
 		String firstPassword = "hantscma";
+		String firstPublicKey = "publicKeyFirstUser";
 		String secondUser = "heinzelu";
 		String secondPassword = "heinzelu";
+		String secondPublicKey = "publicKeySecondUser";
 
 		if (args.length < 1)
 			usage();
@@ -59,13 +63,11 @@ public class Main {
 					e2.printStackTrace();
 				}
 
-				Block[] blockArray = new Block[4];
+				Block[] blockArray = new Block[1];
 				try {
 					// Parameter "0" = prefix
-					blockArray[0] = new Block((firstUser + "erste Corona-Impfung mit Astra-Seneca").getBytes(), 0);
-					blockArray[1] = new Block((firstUser + "zweite Corona-Impfung mit Astra-Seneca").getBytes(), 0);
-					blockArray[2] = new Block((firstUser + "erste Impfung gegen Tetanus").getBytes(), 0);
-					blockArray[3] = new Block((firstUser + "dritte Corona-Impfung mit Moderna").getBytes(), 0);
+					String encryptedFirstUser = encrypt(firstUser, firstPublicKey); 
+					blockArray[0] = new Block((encryptedFirstUser + "Wahlergebnis: CDU").getBytes(), publicKeyMiner ,0);
 				} catch (NoSuchAlgorithmException e1) {
 					e1.printStackTrace();
 				} catch (UnsupportedEncodingException e1) {
@@ -109,9 +111,8 @@ public class Main {
 				Block[] blockArray = new Block[3];
 				try {
 					// Parameter "0" = prefix
-					blockArray[0] = new Block((firstUser + "erste Impfung gegen FSME").getBytes(), 0);
-					blockArray[1] = new Block((firstUser + "zweite Impfung gegen Tetanus").getBytes(), 0);
-					blockArray[2] = new Block((firstUser + "vierte Corona-Impfung mit Biontech").getBytes(), 0);
+					String encryptedFirstUser = encrypt(firstUser, firstPublicKey); 
+					blockArray[0] = new Block((encryptedFirstUser + "Wahlergebnis: CSU").getBytes(),publicKeyMiner, 0);
 				} catch (NoSuchAlgorithmException e1) {
 					e1.printStackTrace();
 				} catch (UnsupportedEncodingException e1) {
@@ -154,11 +155,11 @@ public class Main {
 				} catch (InitializationAlreadyDoneException e2) {
 					e2.printStackTrace();
 				}
-				Block[] blockArray = new Block[2];
+				Block[] blockArray = new Block[1];
 				try {
 					// Parameter "0" = prefix
-					blockArray[0] = new Block((secondUser + "Guertelrose-Impfung").getBytes(), 0); // 0
-					blockArray[1] = new Block((secondUser + "erste Corona Impfung").getBytes(), 0); // 0
+					String encryptedSecondUser = encrypt(secondUser, secondPublicKey);
+					blockArray[0] = new Block((encryptedSecondUser + "Wahlergebnis: FDP").getBytes(),publicKeyMiner, 0);
 				} catch (NoSuchAlgorithmException e1) {
 					e1.printStackTrace();
 				} catch (UnsupportedEncodingException e1) {
@@ -239,5 +240,11 @@ public class Main {
 				usage();
 			}
 		}
+		
+	}
+	public static String encrypt(String UserName, String publicKey) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+		MessageDigest digest = MessageDigest.getInstance("SHA-1");
+		String encryptUserName = digest.digest((UserName + publicKey).getBytes("UTF-8")).toString();
+		return encryptUserName;
 	}
 }

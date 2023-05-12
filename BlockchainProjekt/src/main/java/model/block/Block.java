@@ -1,6 +1,5 @@
 package model.block;
 
-
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.security.MessageDigest;
@@ -8,8 +7,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Date;
 
+//import jakarta.persistence.*;
 import javax.persistence.*;
-
 
 // create table Block (
 //    id integer primary key,              
@@ -32,30 +31,30 @@ public class Block implements java.io.Serializable {
 
 //	private final static String DEFAULT_HASH_ALGORITHM = "SHA-256";
 	private final static String DEFAULT_HASH_ALGORITHM = "SHA-1";
-	private final static String DEFAULT_CODE_BASE = "UTF-8";
-
+	private final static String DEFAULT_CODE_BASE = "UTF-8";	
+	
 	@Id
 	private BigDecimal id;
-
-	@Lob
+	//	@Lob
 	private byte[] dataAsObject;
-
+	private String userId;
+	private String publicKeyMiner;
 	private String previousHash;
 	private String hash;
 	private Date insertDate;
 	private long nonce;
-	private String userId;
-	private String instanceId;
+	private String instanceId;	
+	private String codeBase;
+
 
 	private String hashAlgorithm;
-	private String codeBase;
 	private int prefix;
 
 	// Notwendige Bedingung fuer JPA!!
 	private Block() {
 	}
 
-	private Block(byte[] dataAsObject, String previousHash, String userId, String instanceId, Date insertDate,
+	private Block(byte[] dataAsObject, String publicKeyMiner, String previousHash, String userId, String instanceId, Date insertDate,
 			String hashAlgorithm, String codeBase, int prefix)
 			throws NoSuchAlgorithmException, UnsupportedEncodingException {
 		this.previousHash = previousHash;
@@ -70,14 +69,15 @@ public class Block implements java.io.Serializable {
 		this.insertDate = insertDate;
 		this.prefix = prefix;
 		this.hash = mineBlock(prefix);
+		this.publicKeyMiner = publicKeyMiner;
 	}
 
-	public Block(byte[] dataAsObject, int prefix) throws NoSuchAlgorithmException, UnsupportedEncodingException {
-		this(dataAsObject, "", "", "", null, DEFAULT_HASH_ALGORITHM, DEFAULT_CODE_BASE, prefix);
+	public Block(byte[] dataAsObject, String publicKeyMiner, int prefix) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+		this(dataAsObject,publicKeyMiner, "", "", "", null, DEFAULT_HASH_ALGORITHM, DEFAULT_CODE_BASE, prefix);
 	}
 
 	// "Schuerfen" nach einem Hashcode mit einer gegebenen Anzahl ("prefix") an
-	// F�hrungszeichen (hier '0');
+	// Fuehrungszeichen (hier '0');
 	// Mit jedem Schritt wird dabei die "nonce"-Zahl erhoeht
 	public String mineBlock(int prefix) throws NoSuchAlgorithmException, UnsupportedEncodingException {
 		String prefixString = new String(new char[prefix]).replace('\0', '0');
@@ -98,7 +98,8 @@ public class Block implements java.io.Serializable {
 		// Fuer Testzwecke und zur Ueberpruefung der Hashwerte Berechnung ohne Datum
 //		String dataToHash = previousHash + Long.toString(nonce) + dataAsObject;
 		/////////////////////////////////
-		String dataToHash = previousHash + Long.toString(nonce) + Arrays.toString(dataAsObject);
+		byte[] encryptedData = encrypt(Arrays.toString(dataAsObject), publicKeyMiner);
+		String dataToHash = previousHash + Long.toString(nonce) + Arrays.toString(encryptedData);
 //		String dataToHash = previousHash + Long.toString(nonce) + getDataAsString();
 
 		MessageDigest digest = null;
@@ -108,20 +109,31 @@ public class Block implements java.io.Serializable {
 
 		// Festlegung der Basis der Zeichencodierung
 		bytes = digest.digest(dataToHash.getBytes(codeBase));
-
-		// Konvertierung des als Bytearray berechneten Hashcodes nach Stringbuffer
+		
 		StringBuffer buffer = new StringBuffer();
-		for (byte b : bytes) {
+		for (byte b : bytes)
 			buffer.append(String.format("%02x", b));
-		}
 		return buffer.toString();
+	}
+	// ToDo: Change encrypt to RSA
+	public static byte[] encrypt(String data, String publicKey) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+		MessageDigest digest = MessageDigest.getInstance("SHA-1");
+		byte[] encryptData = digest.digest((data + publicKey).getBytes("UTF-8"));
+		return encryptData;
+	}
+
+	public String getPublicKeyMiner() {
+		return publicKeyMiner;
+	}
+
+	public void setPublicKeyMiner(String publicKeyMiner) {
+		this.publicKeyMiner = publicKeyMiner;
 	}
 
 	private String getDataAsString() {
 		int result = 0;
-		for (int i = 0; i < dataAsObject.length; i++) {
+		for (int i = 0; i < dataAsObject.length; i++)
 			result += dataAsObject[i];
-		}
 		return String.format("%s", result);
 	}
 

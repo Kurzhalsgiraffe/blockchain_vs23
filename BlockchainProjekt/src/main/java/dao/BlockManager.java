@@ -156,7 +156,7 @@ public abstract class BlockManager {
 		for (i = 0; i < blockList.size(); i++) {
 			String previousHash = i == 0 ? "0" : blockList.get(i - 1).getHash();
 			try {
-				testBlock = new Block(blockList.get(i).getDataAsObject(), blockList.get(i).getPrefix());
+				testBlock = new Block(blockList.get(i).getDataAsObject(),blockList.get(i).getPublicKeyMiner(), blockList.get(i).getPrefix());
 				flag = blockList.get(i).getHash().equals(testBlock.getHash())
 						&& previousHash.equals(blockList.get(i).getPreviousHash());
 				if (!flag)
