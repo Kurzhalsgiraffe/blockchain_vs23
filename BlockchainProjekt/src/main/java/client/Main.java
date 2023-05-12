@@ -93,7 +93,6 @@ public class Main {
 				initUser("FirstUser", firstUser, firstPassword);
 
 				try {
-					// Parameter "0" = prefix
 					String encryptedFirstUser = encrypt(firstUser, firstPublicKey); 
 					block = new Block((encryptedFirstUser + "Wahlergebnis: CSU").getBytes(),publicKeyMiner, 0);
 				} catch (NoSuchAlgorithmException e1) {
@@ -134,7 +133,6 @@ public class Main {
 				initUser("SecondUser", secondUser, secondPassword);
 
 				try {
-					// Parameter "0" = prefix
 					String encryptedSecondUser = encrypt(secondUser, secondPublicKey);
 					block = new Block((encryptedSecondUser + "Wahlergebnis: FDP").getBytes(),publicKeyMiner, 0);
 				} catch (NoSuchAlgorithmException e1) {
@@ -216,7 +214,6 @@ public class Main {
 				usage();
 			}
 		}
-		
 	}
 	
 	public static void initMiner(String miner, String minerPassword) {
