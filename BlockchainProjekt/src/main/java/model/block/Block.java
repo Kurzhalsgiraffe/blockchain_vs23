@@ -25,7 +25,7 @@ import javax.persistence.*;
 // );
 
 @Entity
-@Table(name = "block")
+@Table (name="block")
 public class Block implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -51,7 +51,7 @@ public class Block implements java.io.Serializable {
 	private int prefix;
 
 	// Notwendige Bedingung fuer JPA!!
-	private Block() {
+	protected Block() {
 	}
 
 	private Block(byte[] dataAsObject, String publicKeyMiner, String previousHash, String userId, String instanceId, Date insertDate,
