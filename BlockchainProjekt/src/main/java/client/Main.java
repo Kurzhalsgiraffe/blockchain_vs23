@@ -36,6 +36,8 @@ public class Main {
 		String secondPassword = "heinzelu";
 		String secondPublicKey = "publicKeySecondUser";
 
+		new ElectionGui();
+		
 		if (args.length < 1) {
 			usage();
 		} else {
