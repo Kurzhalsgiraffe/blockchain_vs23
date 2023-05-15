@@ -2,7 +2,7 @@
 #EclipseWorkspace
 
 *\persistence.xml
-*\.classpath
+BlockchainProject\.classpath
 
 # eclipse specific git ignore
 .project
@@ -16,7 +16,7 @@ tmp\**\*
 *~.nib
 .settings\
 .loadpath
-*.class
+*\*.class
 
 # Locally stored "Eclipse launch configurations"
 *.launch
