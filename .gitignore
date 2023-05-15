@@ -1,20 +1,20 @@
 
 #EclipseWorkspace
 
-*/persistence.xml
-*/.classpath
+*\persistence.xml
+*\.classpath
 
 # eclipse specific git ignore
 .project
 .metadata
-bin/**
-tmp/**
-tmp/**/*
+bin\**
+tmp\**
+tmp\**\*
 *.tmp
 *.bak
 *.swp
 *~.nib
-.settings/
+.settings\
 .loadpath
 *.class
 
