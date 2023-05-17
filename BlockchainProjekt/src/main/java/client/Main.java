@@ -3,11 +3,14 @@ package client;
 import java.io.UnsupportedEncodingException;
 import java.nio.channels.spi.AbstractSelectableChannel;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import com.fasterxml.classmate.util.ResolvedTypeCache.Key;
 
 import dao.*;
 import model.block.Block;
@@ -34,9 +37,6 @@ public class Main {
 		String thirdUser = "heinzelu";
 		String thirdPassword = "heinzelu";
 
-		String firstPublicKey = "publicKeyFirstUser";
-		String secondPublicKey = "publicKeySecondUser";
-
 		// new ElectionGui();
 
 		if (args.length < 1) {
@@ -56,11 +56,10 @@ public class Main {
 //ErsterLoginErsterBenutzer
 			} else if (args[0].equals("ErsterLoginErsterBenutzer")) {			
 				Block block = null;
-				initUser("FirstUser", firstUser, firstPassword);
+				KeyPair key = initUser("FirstUser", firstUser, firstPassword);
 				try {
-					// TODO: generate RSA Keypair and use it!!!!
-					String encryptedFirstUser = RSA.encrypt(firstUser, firstPublicKey);
-					block = new Block((encryptedFirstUser + "Wahlergebnis: CDU").getBytes(), 0);
+					byte[] encryptedFirstUser = RSA.encrypt(firstUser, key.getPublic());
+					block = new Block((new String(encryptedFirstUser) + "Wahlergebnis: CDU").getBytes(), 0);
 				} catch (NoSuchAlgorithmException e1) {
 					e1.printStackTrace();
 				} catch (UnsupportedEncodingException e1) {
@@ -94,12 +93,12 @@ public class Main {
 //LoginZweiterBenutzer
 			} else if (args[0].equals("LoginZweiterBenutzer")) {
 				Block block = null;
-				initUser("SecondUser", secondUser, secondPassword);
+				KeyPair key = initUser("SecondUser", secondUser, secondPassword);
 
 				try {
-					// TODO: generate RSA Keypair and use it!!!!
-					String encryptedSecondUser = RSA.encrypt(secondUser, secondPublicKey);
-					block = new Block((encryptedSecondUser + "Wahlergebnis: FDP").getBytes(), 0);
+					
+					byte[] encryptedSecondUser = RSA.encrypt(firstUser, key.getPublic());
+					block = new Block((new String(encryptedSecondUser) + "Wahlergebnis: FDP").getBytes(), 0);
 				} catch (NoSuchAlgorithmException e1) {
 					e1.printStackTrace();
 				} catch (UnsupportedEncodingException e1) {
@@ -190,12 +189,14 @@ public class Main {
 		}
 	}
 	
-	public static void initUser(String persistanceUnit, String username, String userPassword) {
+	public static KeyPair initUser(String persistanceUnit, String username, String userPassword) {
 		InitBlockchainManager initForUser = new InitBlockchainManager(persistanceUnit, username, userPassword);
 		try {
 			initForUser.initDatabase(); // initialisiere Datenbank fuer User
 		} catch (InitializationAlreadyDoneException e) {
 			e.printStackTrace();
 		}
+		KeyPair key = RSA.gen();
+		return key;
 	}
 }

@@ -13,11 +13,19 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 public class RSA {
-	private static KeyPair key = null;
-	
+		
+	public static void main(String[] args) {
+		KeyPair key = gen();
+		
+		String message = "Hallo Welt";
+		byte[] enc = encrypt(message, key.getPublic());
+		String dec = decrypt(enc, key.getPrivate());
 
+		System.out.println(new String(enc));
+		System.out.println(new String(dec));
+	}
 	
-	public static void gen() {
+	public static KeyPair gen() {
 		KeyPairGenerator keygen = null;
 		try {
 			keygen = KeyPairGenerator.getInstance("RSA");
@@ -25,7 +33,8 @@ public class RSA {
 			e.printStackTrace();
 		}
 		keygen.initialize(1024);
-		key = keygen.generateKeyPair();
+		KeyPair key = keygen.generateKeyPair();
+		return key;
 	}
 	
 	public static byte[] encrypt(String message, PublicKey pk) {
