@@ -44,5 +44,18 @@
 		</properties>
 	</persistence-unit>
 
+	<persistence-unit name="ThirdUser">
+		<class>model.block.Block</class>
+		<properties>
+			<property name="hibernate.connection.driver_class"
+				value="oracle.jdbc.OracleDriver" />
+			<property name="hibernate.connection.url"
+				value="jdbc:oracle:thin:@ora.win.fh-albsig.de:1521:windb" />
+			<property name="hibernate.dialect"
+				value="org.hibernate.dialect.Oracle10gDialect" />
+			<property name="hibernate.hbm2ddl.auto" value="none" />
+			<property name="hibernate.show_sql" value="true" />
+		</properties>
+	</persistence-unit>
 
 </persistence>

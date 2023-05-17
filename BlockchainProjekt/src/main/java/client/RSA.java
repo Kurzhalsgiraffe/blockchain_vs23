@@ -15,16 +15,7 @@ import javax.crypto.NoSuchPaddingException;
 public class RSA {
 	private static KeyPair key = null;
 	
-	public static void main(String[] args) {
-		gen();
-		
-		String message = "Hallo Welt";
-		byte[] enc = encrypt(message, key.getPublic());
-		String dec = decrypt(enc, key.getPrivate());
 
-		System.out.println(new String(enc));
-		System.out.println(new String(dec));
-	}
 	
 	public static void gen() {
 		KeyPairGenerator keygen = null;

@@ -21,7 +21,7 @@ public class InitBlockchainManager {
 //    prefix integer not null
 // );
 // 
-	private final static String CREATE_STATEMENTS[] = { 
+	private final static String CREATE_STATEMENTS[] = {
 			"create table Block (" + " id integer primary key, " + " dataAsobject blob,"
 					+ " previousHash varchar2(255) not null, " + " hash varchar2(255) not null,"
 					+ " insertDate date not null, " + " userId varchar2(255) not null,"

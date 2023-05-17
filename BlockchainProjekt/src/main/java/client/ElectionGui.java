@@ -10,8 +10,6 @@ import javax.swing.*;
 
 
 
-
-
 public class ElectionGui {
 	// the frame
 	private JFrame frame;

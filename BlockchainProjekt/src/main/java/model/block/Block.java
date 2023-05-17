@@ -38,7 +38,6 @@ public class Block implements java.io.Serializable {
 	//	@Lob
 	private byte[] dataAsObject;
 	private String userId;
-	private String publicKeyMiner;
 	private String previousHash;
 	private String hash;
 	private Date insertDate;
@@ -54,7 +53,7 @@ public class Block implements java.io.Serializable {
 	protected Block() {
 	}
 
-	private Block(byte[] dataAsObject, String publicKeyMiner, String previousHash, String userId, String instanceId, Date insertDate,
+	private Block(byte[] dataAsObject, String previousHash, String userId, String instanceId, Date insertDate,
 			String hashAlgorithm, String codeBase, int prefix)
 			throws NoSuchAlgorithmException, UnsupportedEncodingException {
 		this.previousHash = previousHash;
@@ -69,11 +68,10 @@ public class Block implements java.io.Serializable {
 		this.insertDate = insertDate;
 		this.prefix = prefix;
 		this.hash = mineBlock(prefix);
-		this.publicKeyMiner = publicKeyMiner;
 	}
 
-	public Block(byte[] dataAsObject, String publicKeyMiner, int prefix) throws NoSuchAlgorithmException, UnsupportedEncodingException {
-		this(dataAsObject,publicKeyMiner, "", "", "", null, DEFAULT_HASH_ALGORITHM, DEFAULT_CODE_BASE, prefix);
+	public Block(byte[] dataAsObject, int prefix) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+		this(dataAsObject, "", "", "", null, DEFAULT_HASH_ALGORITHM, DEFAULT_CODE_BASE, prefix);
 	}
 
 	// "Schuerfen" nach einem Hashcode mit einer gegebenen Anzahl ("prefix") an
@@ -98,8 +96,7 @@ public class Block implements java.io.Serializable {
 		// Fuer Testzwecke und zur Ueberpruefung der Hashwerte Berechnung ohne Datum
 //		String dataToHash = previousHash + Long.toString(nonce) + dataAsObject;
 		/////////////////////////////////
-		byte[] encryptedData = encrypt(Arrays.toString(dataAsObject), publicKeyMiner);
-		String dataToHash = previousHash + Long.toString(nonce) + Arrays.toString(encryptedData);
+		String dataToHash = previousHash + Long.toString(nonce) + Arrays.toString(dataAsObject);
 //		String dataToHash = previousHash + Long.toString(nonce) + getDataAsString();
 
 		MessageDigest digest = null;
@@ -114,20 +111,6 @@ public class Block implements java.io.Serializable {
 		for (byte b : bytes)
 			buffer.append(String.format("%02x", b));
 		return buffer.toString();
-	}
-	// ToDo: Change encrypt to RSA
-	public static byte[] encrypt(String data, String publicKey) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-		MessageDigest digest = MessageDigest.getInstance("SHA-1");
-		byte[] encryptData = digest.digest((data + publicKey).getBytes("UTF-8"));
-		return encryptData;
-	}
-
-	public String getPublicKeyMiner() {
-		return publicKeyMiner;
-	}
-
-	public void setPublicKeyMiner(String publicKeyMiner) {
-		this.publicKeyMiner = publicKeyMiner;
 	}
 
 	private String getDataAsString() {

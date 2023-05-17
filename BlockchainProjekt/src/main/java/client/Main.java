@@ -1,7 +1,7 @@
 package client;
 
 import java.io.UnsupportedEncodingException;
-
+import java.nio.channels.spi.AbstractSelectableChannel;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -28,22 +28,25 @@ public class Main {
 		// Zu ersetzen mit konkreten User-Angaben
 		String miner = "minerProjektVS_SS23";          
 		String minerPassword = "minerProjektVS_SS23";
-		String publicKeyMiner = "publicKeyMiner";
 		String firstUser = "hantscma";
 		String firstPassword = "hantscma";
+		String secondUser = "rothnina";
+		String secondPassword = "rothnina";
+		String thirdUser = "heinzelu";
+		String thirdPassword = "heinzelu";
+
 		String firstPublicKey = "publicKeyFirstUser";
-		String secondUser = "heinzelu";
-		String secondPassword = "heinzelu";
 		String secondPublicKey = "publicKeySecondUser";
 
-		new ElectionGui();
-		
+		// new ElectionGui();
+
 		if (args.length < 1) {
 			usage();
 		} else {
 			MyBlockManager blockManagerMiner = new MyBlockManager("BlockchainMiner", miner, minerPassword);
 			MyBlockManager blockManagerFirstUser = new MyBlockManager("FirstUser", firstUser, firstPassword);
 			MyBlockManager blockManagerSecondUser = new MyBlockManager("SecondUser", secondUser, secondPassword);
+			MyBlockManager blockManagerThirdUser = new MyBlockManager("ThirdUser", thirdUser, thirdPassword);
 
 			List<Block> blockList = new ArrayList<Block>();
 	
@@ -55,10 +58,10 @@ public class Main {
 			} else if (args[0].equals("ErsterLoginErsterBenutzer")) {			
 				Block block = null;
 				initUser("FirstUser", firstUser, firstPassword);
-
 				try {
-					String encryptedFirstUser = encrypt(firstUser, firstPublicKey); 
-					block = new Block((encryptedFirstUser + "Wahlergebnis: CDU").getBytes(), publicKeyMiner ,0);
+					// TODO: generate RSA Keypair and use it!!!!
+					String encryptedFirstUser = RSA.encrypt(firstUser, firstPublicKey);
+					block = new Block((encryptedFirstUser + "Wahlergebnis: CDU").getBytes(), 0);
 				} catch (NoSuchAlgorithmException e1) {
 					e1.printStackTrace();
 				} catch (UnsupportedEncodingException e1) {
@@ -92,11 +95,11 @@ public class Main {
 //ZweiterLoginErsterBenutzer
 			} else if (args[0].equals("ZweiterLoginErsterBenutzer")) {
 				Block block = null;
-				initUser("FirstUser", firstUser, firstPassword);
 
 				try {
-					String encryptedFirstUser = encrypt(firstUser, firstPublicKey); 
-					block = new Block((encryptedFirstUser + "Wahlergebnis: CSU").getBytes(),publicKeyMiner, 0);
+					// TODO: generate RSA Keypair and use it!!!!
+					String encryptedFirstUser = RSA.encrypt(firstUser, firstPublicKey); 
+					block = new Block((encryptedFirstUser + "Wahlergebnis: CSU").getBytes(), 0);
 				} catch (NoSuchAlgorithmException e1) {
 					e1.printStackTrace();
 				} catch (UnsupportedEncodingException e1) {
@@ -135,8 +138,9 @@ public class Main {
 				initUser("SecondUser", secondUser, secondPassword);
 
 				try {
-					String encryptedSecondUser = encrypt(secondUser, secondPublicKey);
-					block = new Block((encryptedSecondUser + "Wahlergebnis: FDP").getBytes(),publicKeyMiner, 0);
+					// TODO: generate RSA Keypair and use it!!!!
+					String encryptedSecondUser = RSA.encrypt(secondUser, secondPublicKey);
+					block = new Block((encryptedSecondUser + "Wahlergebnis: FDP").getBytes(), 0);
 				} catch (NoSuchAlgorithmException e1) {
 					e1.printStackTrace();
 				} catch (UnsupportedEncodingException e1) {
@@ -234,11 +238,5 @@ public class Main {
 		} catch (InitializationAlreadyDoneException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	public static String encrypt(String UserName, String publicKey) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-		MessageDigest digest = MessageDigest.getInstance("SHA-1");
-		String encryptUserName = digest.digest((UserName + publicKey).getBytes("UTF-8")).toString();
-		return encryptUserName;
 	}
 }
