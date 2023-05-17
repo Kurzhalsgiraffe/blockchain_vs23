@@ -17,8 +17,7 @@ public class Main {
 	public static void usage() {
 		System.out.println("Usage: java Main EinrichtenMiner"); // zuerst auszufuehren, alternativ SQL-Skript fuer Miner ausfuehren
 		System.out.println("Usage: java Main ErsterLoginErsterBenutzer");  // Schritt 2
-		System.out.println("Usage: java Main ZweiterLoginErsterBenutzer"); // Schritt 3 oder 4
-		System.out.println("Usage: java Main LoginZweiterBenutzer");       // Schritt 2 oder 4
+		System.out.println("Usage: java Main LoginZweiterBenutzer");       // Schritt 3
 		System.out.println("Usage: java Main Read");                       // beliebig nach Schritt 2
 		System.out.println("Usage: java Main Validate");                   // beliebig nach Schritt 2
 		System.out.println("Usage: java Main DoSomethingWithTheBlock");    // beliebig nach Schritt 2
@@ -75,46 +74,6 @@ public class Main {
 				}
 
 				// Speicherung der Bloecke fuer Miner und Benutzer
-				try {
-					blockList.add(block); // Kopiere in Liste fuer Validierung (s.u.)
-					block.setId(blockManagerMiner.calculateNextId());
-					// je nach Anwendungsfalls ggf. vor Speicherung einzubauen!?
-					// blockManagerMiner.doSomethingWithTheBlock(block, user);
-
-					blockManagerMiner.append(block); // Speichern des Blocks auf DB des Miners
-					blockManagerFirstUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock()));
-					
-				} catch (SaveException e) {
-					e.printStackTrace();
-				} catch (NoEntityFoundException e) {
-					e.printStackTrace();
-				} catch (TargetListNotEmptyException e) {
-					e.printStackTrace();
-				}
-
-//ZweiterLoginErsterBenutzer
-			} else if (args[0].equals("ZweiterLoginErsterBenutzer")) {
-				Block block = null;
-
-				try {
-					// TODO: generate RSA Keypair and use it!!!!
-					String encryptedFirstUser = RSA.encrypt(firstUser, firstPublicKey); 
-					block = new Block((encryptedFirstUser + "Wahlergebnis: CSU").getBytes(), 0);
-				} catch (NoSuchAlgorithmException e1) {
-					e1.printStackTrace();
-				} catch (UnsupportedEncodingException e1) {
-					e1.printStackTrace();
-				}
-
-				System.out.println("blockManagerFirstUser.getIdFromLastBlock() = " + blockManagerFirstUser.getIdFromLastBlock());
-
-				// Kopiere alle Bloecke vom Miner, die nach dem letzten Block auf der DB des ersten Benutzes gespeichert wurden
-				try {
-					blockManagerFirstUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock()));
-				} catch (TargetListNotEmptyException e1) {
-					e1.printStackTrace();
-				}
-				// Speicherung der neuen Bloecke fuer Miner und Benutzer
 				try {
 					blockList.add(block); // Kopiere in Liste fuer Validierung (s.u.)
 					block.setId(blockManagerMiner.calculateNextId());
