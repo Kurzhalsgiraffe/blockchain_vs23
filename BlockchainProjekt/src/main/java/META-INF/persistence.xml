@@ -5,6 +5,8 @@
 	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
 	<persistence-unit name="BlockchainMiner">
 		<class>model.block.Block</class>
+		<class>model.entity.Blockchainuser</class>
+		<class>model.entity.MyBlockchainuserKeys</class>
 		<properties>
 			<property name="hibernate.connection.driver_class"
 				value="oracle.jdbc.OracleDriver" />
@@ -18,6 +20,7 @@
 	</persistence-unit>
 	<persistence-unit name="FirstUser">
 		<class>model.block.Block</class>
+		<class>model.entity.MyBlockchainuserKeys</class>
 		<properties>
 			<property name="hibernate.connection.driver_class"
 				value="oracle.jdbc.OracleDriver" />
@@ -32,6 +35,7 @@
 
 	<persistence-unit name="SecondUser">
 		<class>model.block.Block</class>
+		<class>model.entity.MyBlockchainuserKeys</class>
 		<properties>
 			<property name="hibernate.connection.driver_class"
 				value="oracle.jdbc.OracleDriver" />
@@ -46,6 +50,7 @@
 
 	<persistence-unit name="ThirdUser">
 		<class>model.block.Block</class>
+		<class>model.entity.MyBlockchainuserKeys</class>
 		<properties>
 			<property name="hibernate.connection.driver_class"
 				value="oracle.jdbc.OracleDriver" />

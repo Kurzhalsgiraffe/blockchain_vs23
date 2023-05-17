@@ -1,9 +1,13 @@
 package dao;
 
+import java.security.*;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.persistence.*;
+
+import client.RSA;
+import model.entity.MyBlockchainuserKeys;
 
 public class InitBlockchainManagerMiner {
 //	 "increment" muss identisch sein zu "allocationSize" in Entity, ansonsten
@@ -33,7 +37,9 @@ public class InitBlockchainManagerMiner {
 					+ " insertDate date not null, " + " userId varchar2(255) not null,"
 					+ " instanceId varchar2(32) not null," + " nonce integer not null, "
 					+ " hashAlgorithm varchar2(20) not null," + " codeBase varchar2(20) not null,"
-					+ " prefix integer not null ) " };
+					+ " prefix integer not null ) ",
+			"drop table myblockchainuserkeys",
+			"create table myblockchainuserkeys(" + " id integer primary key" + ", publickey blob " + ", privatekey blob)"};
 
 	private EntityManager em = null;
 
@@ -59,6 +65,11 @@ public class InitBlockchainManagerMiner {
 			}
 		}
 		ta.commit();
+	}
+	public void initKeys() throws NoSuchRowException{
+		MyBlockchainuserKeysDao myKeys = new MyBlockchainuserKeysDao(em);
+		KeyPair keys = RSA.gen();
+		myKeys.save(new MyBlockchainuserKeys(keys.getPublic(), keys.getPrivate()) );
 	}
 
 	public void close() {

@@ -4,11 +4,16 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.util.Arrays;
 import java.util.Date;
 
 //import jakarta.persistence.*;
 import javax.persistence.*;
+
+import dao.MyBlockchainuserKeysDao;
+import dao.NoSuchRowException;
+import model.entity.MyBlockchainuserKeys;
 
 // create table Block (
 //    id integer primary key,              
@@ -113,6 +118,11 @@ public class Block implements java.io.Serializable {
 		return buffer.toString();
 	}
 
+	private PublicKey getMinerPublicKey() throws NoSuchRowException {
+		MyBlockchainuserKeysDao bcuK = new MyBlockchainuserKeysDao();
+		PublicKey publicKeyMiner = bcuK.getMyKeys().getPublickey();
+		return publicKeyMiner;
+	}
 	private String getDataAsString() {
 		int result = 0;
 		for (int i = 0; i < dataAsObject.length; i++)

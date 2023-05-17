@@ -14,6 +14,7 @@ import com.fasterxml.classmate.util.ResolvedTypeCache.Key;
 
 import dao.*;
 import model.block.Block;
+import model.entity.MyBlockchainuserKeys;
 
 public class Main {
 
@@ -26,7 +27,7 @@ public class Main {
 		System.out.println("Usage: java Main DoSomethingWithTheBlock");    // beliebig nach Schritt 2
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws NoSuchRowException {
 		// Zu ersetzen mit konkreten User-Angaben
 		String miner = "minerProjektVS_SS23";          
 		String minerPassword = "minerProjektVS_SS23";
@@ -56,9 +57,10 @@ public class Main {
 //ErsterLoginErsterBenutzer
 			} else if (args[0].equals("ErsterLoginErsterBenutzer")) {			
 				Block block = null;
-				KeyPair key = initUser("FirstUser", firstUser, firstPassword);
+				InitBlockchainManager bc1User = initUser("FirstUser", firstUser, firstPassword);
 				try {
-					byte[] encryptedFirstUser = RSA.encrypt(firstUser, key.getPublic());
+					MyBlockchainuserKeys keys = bc1User.getMyKeys();
+					byte[] encryptedFirstUser = RSA.encrypt(firstUser, keys.getPublickey());
 					block = new Block((new String(encryptedFirstUser) + "Wahlergebnis: CDU").getBytes(), 0);
 				} catch (NoSuchAlgorithmException e1) {
 					e1.printStackTrace();
@@ -93,11 +95,11 @@ public class Main {
 //LoginZweiterBenutzer
 			} else if (args[0].equals("LoginZweiterBenutzer")) {
 				Block block = null;
-				KeyPair key = initUser("SecondUser", secondUser, secondPassword);
+				InitBlockchainManager bc2User = initUser("SecondUser", secondUser, secondPassword);
 
 				try {
-					
-					byte[] encryptedSecondUser = RSA.encrypt(firstUser, key.getPublic());
+					MyBlockchainuserKeys keys = bc2User.getMyKeys();
+					byte[] encryptedSecondUser = RSA.encrypt(firstUser, keys.getPublickey());
 					block = new Block((new String(encryptedSecondUser) + "Wahlergebnis: FDP").getBytes(), 0);
 				} catch (NoSuchAlgorithmException e1) {
 					e1.printStackTrace();
@@ -180,23 +182,28 @@ public class Main {
 		}
 	}
 	
-	public static void initMiner(String miner, String minerPassword) {
+	public static void initMiner(String miner, String minerPassword) throws NoSuchRowException {
 		InitBlockchainManagerMiner initForMiner = new InitBlockchainManagerMiner("BlockchainMiner", miner, minerPassword);
 		try {
 			initForMiner.initDatabase(); // initialisiere Datenbank fuer Miner
+			initForMiner.initKeys();
 		} catch (InitializationAlreadyDoneException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public static KeyPair initUser(String persistanceUnit, String username, String userPassword) {
+//	public static KeyPair initUser(String persistanceUnit, String username, String userPassword) {
+	public static InitBlockchainManager initUser(String persistanceUnit, String username, String userPassword) throws NoSuchRowException {
+
 		InitBlockchainManager initForUser = new InitBlockchainManager(persistanceUnit, username, userPassword);
 		try {
 			initForUser.initDatabase(); // initialisiere Datenbank fuer User
+			initForUser.initKeys();
 		} catch (InitializationAlreadyDoneException e) {
 			e.printStackTrace();
 		}
-		KeyPair key = RSA.gen();
-		return key;
+		return initForUser;
+//		KeyPair key = RSA.gen();
+//		return key;
 	}
 }
