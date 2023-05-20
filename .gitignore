@@ -1,7 +1,7 @@
 
 #EclipseWorkspace
 
-*\persistence.xml
+#*\persistence.xml
 BlockchainProject\.classpath
 
 # eclipse specific git ignore
