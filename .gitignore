@@ -1,10 +1,6 @@
 
-#EclipseWorkspace
-
 *\persistence.xml
-BlockchainProject\.classpath
-
-# eclipse specific git ignore
+.classpath
 .project
 .metadata
 bin\**
