@@ -20,8 +20,8 @@ import model.entity.MyBlockchainuserKeys;
 public class Main {
 
 	public static void usage() {
-		System.out.println("Usage: java Main ZulassungUser");				// Schritt 0
-		System.out.println("Usage: java Main EinrichtenMiner");				// Schritt 1
+		System.out.println("Usage: java Main EinrichtenMiner");				// Schritt 0
+		System.out.println("Usage: java Main ZulassungUser");				// Schritt 1
 		System.out.println("Usage: java Main LoginErsterBenutzer");			// Schritt 2
 		System.out.println("Usage: java Main LoginZweiterBenutzer");		// Schritt 3
 		System.out.println("Usage: java Main Read");						// beliebig nach Schritt 2
@@ -52,15 +52,15 @@ public class Main {
 
 			List<Block> blockList = new ArrayList<Block>();
 
+//EinrichtenMiner
+			if (args[0].equals("EinrichtenMiner")) {
+			initMiner(miner, minerPassword);
+
 //ZulassungUser
-			if (args[0].equals("ZulassungUser")) {
+			} else if (args[0].equals("ZulassungUser")) {
 				permitUser(firstUser, firstPassword);
 				permitUser(secondUser, secondPassword);
 				permitUser(thirdUser, thirdPassword);
-			
-//EinrichtenMiner
-			} else if (args[0].equals("EinrichtenMiner")) {
-				initMiner(miner, minerPassword);
 
 //LoginErsterBenutzer
 			} else if (args[0].equals("LoginErsterBenutzer")) {			
