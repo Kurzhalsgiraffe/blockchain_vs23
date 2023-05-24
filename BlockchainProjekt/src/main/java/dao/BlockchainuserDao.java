@@ -55,6 +55,20 @@ public class BlockchainuserDao {
 		
 		ta.commit();
 	}
+	public void save(String username, String password) throws NoSuchRowException {
+		EntityTransaction ta = em.getTransaction();
+		ta.begin();
+		// select * from blockchainuser where userid = ? 
+		Collection<Blockchainuser> users = list();
+		for(Blockchainuser user: users) {
+			if (user.getUsername().equals(username)) {
+				System.out.println("User already Exists");
+				return;
+			}
+		}
+		em.persist(new Blockchainuser(username, password));
+		ta.commit();
+	}
 	
 	public void close() {
 		// entspricht (im weitesten Sinne) conn.close()
