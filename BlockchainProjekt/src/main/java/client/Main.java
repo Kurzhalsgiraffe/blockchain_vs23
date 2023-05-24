@@ -20,8 +20,9 @@ import model.entity.MyBlockchainuserKeys;
 public class Main {
 
 	public static void usage() {
+		System.out.println("Usage: java Main ZulassungUser");				// Schritt 0
 		System.out.println("Usage: java Main EinrichtenMiner");				// Schritt 1
-		System.out.println("Usage: java Main ErsterLoginErsterBenutzer");	// Schritt 2
+		System.out.println("Usage: java Main LoginErsterBenutzer");			// Schritt 2
 		System.out.println("Usage: java Main LoginZweiterBenutzer");		// Schritt 3
 		System.out.println("Usage: java Main Read");						// beliebig nach Schritt 2
 		System.out.println("Usage: java Main Validate");					// beliebig nach Schritt 2
@@ -50,101 +51,110 @@ public class Main {
 			MyBlockManager blockManagerThirdUser = new MyBlockManager("ThirdUser", thirdUser, thirdPassword);
 
 			List<Block> blockList = new ArrayList<Block>();
-	
+
+//ZulassungUser
+			if (args[0].equals("ZulassungUser")) {
+				
+			
+			
 //EinrichtenMiner
-			if (args[0].equals("EinrichtenMiner")) {
+			} else if (args[0].equals("EinrichtenMiner")) {
 				initMiner(miner, minerPassword);
 
-//ErsterLoginErsterBenutzer
-			} else if (args[0].equals("ErsterLoginErsterBenutzer")) {			
+//LoginErsterBenutzer
+			} else if (args[0].equals("LoginErsterBenutzer")) {			
 				Block block = null;
 				
-				if (!userExists(firstUser, firstPassword)) {
-					initUser("FirstUser", firstUser, firstPassword);
-				}
-				InitBlockchainManager bc1User = getUser("FirstUser", firstUser, firstPassword);
-				
-				try {
-					byte[] encryptedFirstUser = RSA.encrypt(firstUser, bc1User.getMyKeys().getPublickey());
-					byte[] data = RSA.encrypt(new String(encryptedFirstUser) + "Wahlergebnis: CDU", getMinerPublicKey());
-					block = new Block(data, 0);
-				} catch (NoSuchAlgorithmException e1) {
-					e1.printStackTrace();
-				} catch (UnsupportedEncodingException e1) {
-					e1.printStackTrace();
-				}
-
-				List<Block> myBlockList = blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock());
-				for (Block b : myBlockList) {
-					System.out.println("block = " + b);
-				}
-
-				// Speicherung der Bloecke fuer Miner und Benutzer
-				try {
-					blockList.add(block); // Kopiere in Liste fuer Validierung (s.u.)
-					block.setId(blockManagerMiner.calculateNextId());
-					// je nach Anwendungsfalls ggf. vor Speicherung einzubauen!?
-					// blockManagerMiner.doSomethingWithTheBlock(block, user);
-
-					blockManagerMiner.append(block); // Speichern des Blocks auf DB des Miners
-					blockManagerFirstUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock()));
+				if (!userEligible(firstUser, firstPassword)) {
+					if (!userHasPublicKey(firstUser)) {
+						initUser("FirstUser", firstUser, firstPassword);
+					}
+					InitBlockchainManager bc1User = getUser("FirstUser", firstUser, firstPassword);
 					
-				} catch (SaveException e) {
-					e.printStackTrace();
-				} catch (NoEntityFoundException e) {
-					e.printStackTrace();
-				} catch (TargetListNotEmptyException e) {
-					e.printStackTrace();
+					try {
+						byte[] encryptedFirstUser = RSA.encrypt(firstUser, bc1User.getMyKeys().getPublickey());
+						byte[] data = RSA.encrypt(new String(encryptedFirstUser) + "Wahlergebnis: CDU", getMinerPublicKey());
+						block = new Block(data, 0);
+					} catch (NoSuchAlgorithmException e1) {
+						e1.printStackTrace();
+					} catch (UnsupportedEncodingException e1) {
+						e1.printStackTrace();
+					}
+	
+					List<Block> myBlockList = blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock());
+					for (Block b : myBlockList) {
+						System.out.println("block = " + b);
+					}
+	
+					// Speicherung der Bloecke fuer Miner und Benutzer
+					try {
+						blockList.add(block); // Kopiere in Liste fuer Validierung (s.u.)
+						block.setId(blockManagerMiner.calculateNextId());
+						// je nach Anwendungsfalls ggf. vor Speicherung einzubauen!?
+						// blockManagerMiner.doSomethingWithTheBlock(block, user);
+	
+						blockManagerMiner.append(block); // Speichern des Blocks auf DB des Miners
+						blockManagerFirstUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock()));
+						
+					} catch (SaveException e) {
+						e.printStackTrace();
+					} catch (NoEntityFoundException e) {
+						e.printStackTrace();
+					} catch (TargetListNotEmptyException e) {
+						e.printStackTrace();
+					}
 				}
 
 //LoginZweiterBenutzer
 			} else if (args[0].equals("LoginZweiterBenutzer")) {
 				Block block = null;
 
-				if (!userExists(firstUser, firstPassword)) {
-					initUser("SecondUser", secondUser, secondPassword);
-				}
-				InitBlockchainManager bc2User = getUser("SecondUser", secondUser, secondPassword);
-				
-				try {
-					byte[] encryptedSecondUser = RSA.encrypt(firstUser, bc2User.getMyKeys().getPublickey());
-					byte[] data = RSA.encrypt(new String(encryptedSecondUser) + "Wahlergebnis: FDP", getMinerPublicKey());
- 					block = new Block(data, 0);
-				} catch (NoSuchAlgorithmException e1) {
-					e1.printStackTrace();
-				} catch (UnsupportedEncodingException e1) {
-					e1.printStackTrace();
-				}
-
-				// Kopiere zuerst Liste von Miner
-				List<Block> newList = blockManagerMiner.list();
-				for (Block b : newList) {
-					System.out.println("block = " + b);
+				if (!userEligible(firstUser, firstPassword)) {
+					if (!userHasPublicKey(secondUser)) {
+						initUser("SecondUser", secondUser, secondPassword);
+					}
+					InitBlockchainManager bc2User = getUser("SecondUser", secondUser, secondPassword);
+					
 					try {
-						Block newBlock = b.copy();
-						blockManagerSecondUser.append(newBlock);
+						byte[] encryptedSecondUser = RSA.encrypt(firstUser, bc2User.getMyKeys().getPublickey());
+						byte[] data = RSA.encrypt(new String(encryptedSecondUser) + "Wahlergebnis: FDP", getMinerPublicKey());
+	 					block = new Block(data, 0);
+					} catch (NoSuchAlgorithmException e1) {
+						e1.printStackTrace();
+					} catch (UnsupportedEncodingException e1) {
+						e1.printStackTrace();
+					}
+	
+					// Kopiere zuerst Liste von Miner
+					List<Block> newList = blockManagerMiner.list();
+					for (Block b : newList) {
+						System.out.println("block = " + b);
+						try {
+							Block newBlock = b.copy();
+							blockManagerSecondUser.append(newBlock);
+						} catch (SaveException e) {
+							e.printStackTrace();
+						} catch (NoEntityFoundException e) {
+							e.printStackTrace();
+						}
+					}
+	
+					// Speicherung der Bloecke fuer Miner und Benutzer (secondUser)
+					try {
+							blockList.add(block); // Kopiere in Liste fuer Validierung (s.u.)
+							block.setId(blockManagerMiner.calculateNextId());
+							// je nach Anwendungsfalls ggf. vor Speicherung einzubauen!?
+							// blockManagerMiner.doSomethingWithTheBlock(block, user);
+	
+							blockManagerMiner.append(block); // Speichern des Blocks auf DB des Miners
+							blockManagerSecondUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerSecondUser.getIdFromLastBlock()));
 					} catch (SaveException e) {
 						e.printStackTrace();
 					} catch (NoEntityFoundException e) {
 						e.printStackTrace();
+					} catch (TargetListNotEmptyException e) {
+						e.printStackTrace();
 					}
-				}
-
-				// Speicherung der Bloecke fuer Miner und Benutzer (secondUser)
-				try {
-						blockList.add(block); // Kopiere in Liste fuer Validierung (s.u.)
-						block.setId(blockManagerMiner.calculateNextId());
-						// je nach Anwendungsfalls ggf. vor Speicherung einzubauen!?
-						// blockManagerMiner.doSomethingWithTheBlock(block, user);
-
-						blockManagerMiner.append(block); // Speichern des Blocks auf DB des Miners
-						blockManagerSecondUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerSecondUser.getIdFromLastBlock()));
-				} catch (SaveException e) {
-					e.printStackTrace();
-				} catch (NoEntityFoundException e) {
-					e.printStackTrace();
-				} catch (TargetListNotEmptyException e) {
-					e.printStackTrace();
 				}
 
 //Read
@@ -212,9 +222,14 @@ public class Main {
 		}
 	}
 	
-	public static boolean userExists(String username, String userPassword) throws NoSuchRowException {
+	public static boolean userEligible(String username, String userPassword) throws NoSuchRowException {
 		BlockchainuserDao b1 = new BlockchainuserDao();
-		return b1.userExists(username, userPassword);
+		return b1.userEligible(username, userPassword);
+	}
+	
+	public static boolean userHasPublicKey(String username) throws NoSuchRowException {
+		BlockchainuserDao b1 = new BlockchainuserDao();
+		return b1.userHasPublicKey(username);
 	}
 	
 	public static InitBlockchainManager getUser(String persistanceUnit, String username, String userPassword) throws NoSuchRowException {

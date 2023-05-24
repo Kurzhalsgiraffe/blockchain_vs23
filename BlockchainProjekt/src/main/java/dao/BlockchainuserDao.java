@@ -62,10 +62,20 @@ public class BlockchainuserDao {
 			em.close();
 	}
 	
-	public boolean userExists(String username, String password) {
+	public boolean userEligible(String username, String password) {
 		Collection<Blockchainuser> users = list();
 		for(Blockchainuser user: users) {
 			if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean userHasPublicKey(String username) {
+		Collection<Blockchainuser> users = list();
+		for(Blockchainuser user: users) {
+			if (user.getUsername().equals(username) && user.getPublicKey() != null) {
 				return true;
 			}
 		}
