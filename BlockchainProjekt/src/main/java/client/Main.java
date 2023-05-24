@@ -19,12 +19,12 @@ import model.entity.MyBlockchainuserKeys;
 public class Main {
 
 	public static void usage() {
-		System.out.println("Usage: java Main EinrichtenMiner"); // zuerst auszufuehren, alternativ SQL-Skript fuer Miner ausfuehren
-		System.out.println("Usage: java Main ErsterLoginErsterBenutzer");  // Schritt 2
-		System.out.println("Usage: java Main LoginZweiterBenutzer");       // Schritt 3
-		System.out.println("Usage: java Main Read");                       // beliebig nach Schritt 2
-		System.out.println("Usage: java Main Validate");                   // beliebig nach Schritt 2
-		System.out.println("Usage: java Main DoSomethingWithTheBlock");    // beliebig nach Schritt 2
+		System.out.println("Usage: java Main EinrichtenMiner");				// Schritt 1
+		System.out.println("Usage: java Main ErsterLoginErsterBenutzer");	// Schritt 2
+		System.out.println("Usage: java Main LoginZweiterBenutzer");		// Schritt 3
+		System.out.println("Usage: java Main Read");						// beliebig nach Schritt 2
+		System.out.println("Usage: java Main Validate");					// beliebig nach Schritt 2
+		System.out.println("Usage: java Main DoSomethingWithTheBlock");		// beliebig nach Schritt 2
 	}
 
 	public static void main(String[] args) throws NoSuchRowException {
@@ -65,15 +65,15 @@ public class Main {
 				
 				try {
 					byte[] encryptedFirstUser = RSA.encrypt(firstUser, bc1User.getMyKeys().getPublickey());
-					block = new Block((new String(encryptedFirstUser) + "Wahlergebnis: CDU").getBytes(), 0);
+					byte[] data = RSA.encrypt(new String(encryptedFirstUser) + "Wahlergebnis: CDU", bc1User.getMyKeys().getPublickey()); // TODO: MUSS PUBLIC KEY DES MINERS SEIN
+					block = new Block(data, 0);
 				} catch (NoSuchAlgorithmException e1) {
 					e1.printStackTrace();
 				} catch (UnsupportedEncodingException e1) {
 					e1.printStackTrace();
 				}
 
-				List<Block> myBlockList = blockManagerMiner
-						.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock());
+				List<Block> myBlockList = blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock());
 				for (Block b : myBlockList) {
 					System.out.println("block = " + b);
 				}
@@ -107,7 +107,8 @@ public class Main {
 				
 				try {
 					byte[] encryptedSecondUser = RSA.encrypt(firstUser, bc2User.getMyKeys().getPublickey());
-					block = new Block((new String(encryptedSecondUser) + "Wahlergebnis: FDP").getBytes(), 0);
+					byte[] data = RSA.encrypt(new String(encryptedSecondUser) + "Wahlergebnis: FDP", bc2User.getMyKeys().getPublickey()); // TODO: MUSS PUBLIC KEY DES MINERS SEIN
+ 					block = new Block(data, 0);
 				} catch (NoSuchAlgorithmException e1) {
 					e1.printStackTrace();
 				} catch (UnsupportedEncodingException e1) {
@@ -188,14 +189,6 @@ public class Main {
 			}
 		}
 	}
-	
-	public static boolean userExists(String persistanceUnit, String username, String userPassword) throws NoSuchRowException {
-		return false;
-	}
-	
-	public static InitBlockchainManager getUser(String persistanceUnit, String username, String userPassword) throws NoSuchRowException {
-		return;
-	}
 
 	public static void initMiner(String miner, String minerPassword) throws NoSuchRowException {
 		InitBlockchainManagerMiner initForMiner = new InitBlockchainManagerMiner("BlockchainMiner", miner, minerPassword);
@@ -216,5 +209,13 @@ public class Main {
 		} catch (InitializationAlreadyDoneException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static boolean userExists(String persistanceUnit, String username, String userPassword) throws NoSuchRowException {
+		return false;
+	}
+	
+	public static InitBlockchainManager getUser(String persistanceUnit, String username, String userPassword) throws NoSuchRowException {
+		return;
 	}
 }
