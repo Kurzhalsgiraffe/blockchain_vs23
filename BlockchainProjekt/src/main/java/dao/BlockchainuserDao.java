@@ -65,17 +65,15 @@ public class BlockchainuserDao {
 	public boolean userExists(String username, String password) {
 		Collection<Blockchainuser> users = list();
 		for(Blockchainuser user: users) {
-			if (user.getUsername().equals(username)) {
-				if (user.getPassword().equals(password)) {
-					return true;
-				}
-				else { return false;}
+			if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
+				return true;
 			}
 		}
+		return false;
 	}
 	
-	public InitBlockchainManager getUser(PersistenceUnit pmUnit, String username, String password) {
-		initBlockchainManager manager = new InitBlockchainManager(pmUnit,username, password);
+	public InitBlockchainManager getUser(String persistanceUnit, String username, String password) {
+		InitBlockchainManager manager = new InitBlockchainManager(persistanceUnit, username, password);
 		return manager;
 	}
 	

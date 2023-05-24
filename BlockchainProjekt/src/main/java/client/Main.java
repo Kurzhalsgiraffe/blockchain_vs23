@@ -58,7 +58,7 @@ public class Main {
 			} else if (args[0].equals("ErsterLoginErsterBenutzer")) {			
 				Block block = null;
 				
-				if (!userExists("FirstUser", firstUser, firstPassword)) {
+				if (!userExists(firstUser, firstPassword)) {
 					initUser("FirstUser", firstUser, firstPassword);
 				}
 				InitBlockchainManager bc1User = getUser("FirstUser", firstUser, firstPassword);
@@ -100,7 +100,7 @@ public class Main {
 			} else if (args[0].equals("LoginZweiterBenutzer")) {
 				Block block = null;
 
-				if (!userExists("SecondUser", firstUser, firstPassword)) {
+				if (!userExists(firstUser, firstPassword)) {
 					initUser("SecondUser", secondUser, secondPassword);
 				}
 				InitBlockchainManager bc2User = getUser("SecondUser", secondUser, secondPassword);
@@ -211,11 +211,13 @@ public class Main {
 		}
 	}
 	
-	public static boolean userExists(String persistanceUnit, String username, String userPassword) throws NoSuchRowException {
-		return false;
+	public static boolean userExists(String username, String userPassword) throws NoSuchRowException {
+		BlockchainuserDao b1 = new BlockchainuserDao();
+		return b1.userExists(username, userPassword);
 	}
 	
 	public static InitBlockchainManager getUser(String persistanceUnit, String username, String userPassword) throws NoSuchRowException {
-		return;
+		BlockchainuserDao b1 = new BlockchainuserDao();
+		return b1.getUser(persistanceUnit, username, userPassword);
 	}
 }
