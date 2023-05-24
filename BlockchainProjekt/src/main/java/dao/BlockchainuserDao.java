@@ -1,5 +1,6 @@
 package dao;
 
+import java.math.BigDecimal;
 import java.security.PublicKey;
 import java.util.Collection;
 import java.util.HashMap;
@@ -66,7 +67,10 @@ public class BlockchainuserDao {
 				return;
 			}
 		}
-		em.persist(new Blockchainuser(username, password));
+		BigDecimal nextId = getIdFromLastBlock();
+		Blockchainuser bcUser = new Blockchainuser(username, password);
+		bcUser.setId(nextId.add(new BigDecimal(1)));
+		em.persist(bcUser);
 		ta.commit();
 	}
 	
@@ -94,5 +98,9 @@ public class BlockchainuserDao {
 			}
 		}
 		return false;
+	}
+	
+	public BigDecimal getIdFromLastBlock() {
+		return (BigDecimal) em.createQuery("SELECT coalesce(max(x.id), 0) FROM Blockchainuser x").getSingleResult();
 	}
 }
