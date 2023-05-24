@@ -39,7 +39,9 @@ public class InitBlockchainManagerMiner {
 					+ " hashAlgorithm varchar2(20) not null," + " codeBase varchar2(20) not null,"
 					+ " prefix integer not null ) ",
 			"drop table myblockchainuserkeys",
-			"create table myblockchainuserkeys(" + " id integer primary key" + ", publickey blob " + ", privatekey blob)"};
+			"create table myblockchainuserkeys(" + " id integer primary key" + ", publickey blob " + ", privatekey blob)",
+			"drop table blockchainuser",
+			"create table blockchainuser(" + " id integer primary key, " + " userId varchar2(255) not null," + " password varchar2(255) not null," + "publickey blob)"};
 
 	private EntityManager em = null;
 
