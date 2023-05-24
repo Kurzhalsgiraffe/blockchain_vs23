@@ -118,11 +118,6 @@ public class Block implements java.io.Serializable {
 		return buffer.toString();
 	}
 
-	private PublicKey getMinerPublicKey() throws NoSuchRowException {
-		MyBlockchainuserKeysDao bcuK = new MyBlockchainuserKeysDao();
-		PublicKey publicKeyMiner = bcuK.getMyKeys().getPublickey();
-		return publicKeyMiner;
-	}
 	private String getDataAsString() {
 		int result = 0;
 		for (int i = 0; i < dataAsObject.length; i++)

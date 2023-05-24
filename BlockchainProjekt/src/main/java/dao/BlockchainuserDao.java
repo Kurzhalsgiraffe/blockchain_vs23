@@ -71,11 +71,4 @@ public class BlockchainuserDao {
 		}
 		return false;
 	}
-	
-	public InitBlockchainManager getUser(String persistanceUnit, String username, String password) {
-		InitBlockchainManager manager = new InitBlockchainManager(persistanceUnit, username, password);
-		return manager;
-	}
-	
-
 }

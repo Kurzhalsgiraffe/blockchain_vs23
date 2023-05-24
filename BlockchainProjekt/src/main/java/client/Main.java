@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -65,7 +66,7 @@ public class Main {
 				
 				try {
 					byte[] encryptedFirstUser = RSA.encrypt(firstUser, bc1User.getMyKeys().getPublickey());
-					byte[] data = RSA.encrypt(new String(encryptedFirstUser) + "Wahlergebnis: CDU", bc1User.getMyKeys().getPublickey()); // TODO: MUSS PUBLIC KEY DES MINERS SEIN
+					byte[] data = RSA.encrypt(new String(encryptedFirstUser) + "Wahlergebnis: CDU", getMinerPublicKey());
 					block = new Block(data, 0);
 				} catch (NoSuchAlgorithmException e1) {
 					e1.printStackTrace();
@@ -107,7 +108,7 @@ public class Main {
 				
 				try {
 					byte[] encryptedSecondUser = RSA.encrypt(firstUser, bc2User.getMyKeys().getPublickey());
-					byte[] data = RSA.encrypt(new String(encryptedSecondUser) + "Wahlergebnis: FDP", bc2User.getMyKeys().getPublickey()); // TODO: MUSS PUBLIC KEY DES MINERS SEIN
+					byte[] data = RSA.encrypt(new String(encryptedSecondUser) + "Wahlergebnis: FDP", getMinerPublicKey());
  					block = new Block(data, 0);
 				} catch (NoSuchAlgorithmException e1) {
 					e1.printStackTrace();
@@ -217,7 +218,13 @@ public class Main {
 	}
 	
 	public static InitBlockchainManager getUser(String persistanceUnit, String username, String userPassword) throws NoSuchRowException {
-		BlockchainuserDao b1 = new BlockchainuserDao();
-		return b1.getUser(persistanceUnit, username, userPassword);
+		InitBlockchainManager manager = new InitBlockchainManager(persistanceUnit, username, userPassword);
+		return manager;
+	}
+	
+	public static PublicKey getMinerPublicKey() throws NoSuchRowException {
+		MyBlockchainuserKeysDao bcuK = new MyBlockchainuserKeysDao();
+		PublicKey publicKeyMiner = bcuK.getMyKeys().getPublickey();
+		return publicKeyMiner;
 	}
 }
