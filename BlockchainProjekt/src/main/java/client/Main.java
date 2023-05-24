@@ -58,10 +58,10 @@ public class Main {
 			} else if (args[0].equals("ErsterLoginErsterBenutzer")) {			
 				Block block = null;
 				
-				if (!userExists(firstUser, firstPassword)) {
+				if (!userExists("FirstUser", firstUser, firstPassword)) {
 					initUser("FirstUser", firstUser, firstPassword);
 				}
-				InitBlockchainManager bc1User = getUser(firstUser firstPassword);
+				InitBlockchainManager bc1User = getUser("FirstUser", firstUser, firstPassword);
 				
 				try {
 					byte[] encryptedFirstUser = RSA.encrypt(firstUser, bc1User.getMyKeys().getPublickey());
@@ -100,10 +100,10 @@ public class Main {
 			} else if (args[0].equals("LoginZweiterBenutzer")) {
 				Block block = null;
 
-				if (!userExists(firstUser, firstPassword)) {
+				if (!userExists("SecondUser", firstUser, firstPassword)) {
 					initUser("SecondUser", secondUser, secondPassword);
 				}
-				InitBlockchainManager bc2User = getUser(firstUser firstPassword);
+				InitBlockchainManager bc2User = getUser("SecondUser", secondUser, secondPassword);
 				
 				try {
 					byte[] encryptedSecondUser = RSA.encrypt(firstUser, bc2User.getMyKeys().getPublickey());
@@ -187,6 +187,14 @@ public class Main {
 				usage();
 			}
 		}
+	}
+	
+	public static boolean userExists(String persistanceUnit, String username, String userPassword) throws NoSuchRowException {
+		return false;
+	}
+	
+	public static InitBlockchainManager getUser(String persistanceUnit, String username, String userPassword) throws NoSuchRowException {
+		return;
 	}
 
 	public static void initMiner(String miner, String minerPassword) throws NoSuchRowException {
