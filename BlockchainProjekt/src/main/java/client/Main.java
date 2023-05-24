@@ -54,8 +54,9 @@ public class Main {
 
 //ZulassungUser
 			if (args[0].equals("ZulassungUser")) {
-				
-			
+				permitUser(firstUser, firstPassword);
+				permitUser(secondUser, secondPassword);
+				permitUser(thirdUser, thirdPassword);
 			
 //EinrichtenMiner
 			} else if (args[0].equals("EinrichtenMiner")) {
@@ -220,6 +221,11 @@ public class Main {
 		} catch (InitializationAlreadyDoneException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static void permitUser(String username, String userPassword) throws NoSuchRowException {
+		BlockchainuserDao b1 = new BlockchainuserDao();
+		b1.save(username, userPassword);
 	}
 	
 	public static boolean userEligible(String username, String userPassword) throws NoSuchRowException {
