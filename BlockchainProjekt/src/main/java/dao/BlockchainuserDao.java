@@ -47,6 +47,7 @@ public class BlockchainuserDao {
 		Collection<Blockchainuser> users = list();
 		for(Blockchainuser user: users) {
 			if (user.getUsername().equals(arg.getUsername())) {
+				arg.setId(user.getId());
 				em.merge(arg); // update
 				ta.commit();
 				return;
