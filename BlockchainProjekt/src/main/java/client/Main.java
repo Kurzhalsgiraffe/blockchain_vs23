@@ -66,8 +66,10 @@ public class Main {
 			} else if (args[0].equals("LoginErsterBenutzer")) {			
 				Block block = null;
 				
-				if (!userEligible(firstUser, firstPassword)) {
+				if (userEligible(firstUser, firstPassword)) {
+					System.out.println(firstUser + "ist zur Wahl zugelassen");
 					if (!userHasPublicKey(firstUser)) {
+						System.out.println(firstUser + "hat keinen Public Key, versuche ihn anzulegen");
 						initUser("FirstUser", firstUser, firstPassword);
 					}
 					InitBlockchainManager bc1User = getUser("FirstUser", firstUser, firstPassword);
@@ -110,7 +112,7 @@ public class Main {
 			} else if (args[0].equals("LoginZweiterBenutzer")) {
 				Block block = null;
 
-				if (!userEligible(firstUser, firstPassword)) {
+				if (userEligible(firstUser, firstPassword)) {
 					if (!userHasPublicKey(secondUser)) {
 						initUser("SecondUser", secondUser, secondPassword);
 					}
