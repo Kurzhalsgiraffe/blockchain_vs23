@@ -1,4 +1,4 @@
-package main.java.client;
+package client;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.channels.spi.AbstractSelectableChannel;
@@ -18,6 +18,8 @@ import model.block.Block;
 import model.entity.MyBlockchainuserKeys;
 
 public class Main {
+	private final static int INITBASE_MINER = 4096;
+	private final static int INITBASE_USER = 1024;
 
 	public static void usage() {
 		System.out.println("Usage: java Main EinrichtenMiner");				// Schritt 0
@@ -76,7 +78,8 @@ public class Main {
 					
 					try {
 						byte[] encryptedFirstUser = RSA.encrypt(firstUser, bc1User.getMyKeys().getPublickey());
-						byte[] data = RSA.encrypt(new String(encryptedFirstUser) + "Wahlergebnis: CDU", getMinerPublicKey());
+						byte[] data = RSA.encrypt(new String(encryptedFirstUser) + "Wahlergebnis: CDU",
+								getMinerPublicKey());
 						block = new Block(data, 0);
 					} catch (NoSuchAlgorithmException e1) {
 						e1.printStackTrace();
@@ -119,9 +122,10 @@ public class Main {
 					InitBlockchainManager bc2User = getUser("SecondUser", secondUser, secondPassword);
 					
 					try {
-						byte[] encryptedSecondUser = RSA.encrypt(firstUser, bc2User.getMyKeys().getPublickey());
-						byte[] data = RSA.encrypt(new String(encryptedSecondUser) + "Wahlergebnis: FDP", getMinerPublicKey());
-	 					block = new Block(data, 0);
+						byte[] encryptedSecondUser = RSA.encrypt(secondUser, bc2User.getMyKeys().getPublickey());
+						byte[] data = RSA.encrypt(new String(encryptedSecondUser) + "Wahlergebnis: FDP",
+								getMinerPublicKey());
+						block = new Block(data, 0);
 					} catch (NoSuchAlgorithmException e1) {
 						e1.printStackTrace();
 					} catch (UnsupportedEncodingException e1) {
@@ -129,17 +133,10 @@ public class Main {
 					}
 	
 					// Kopiere zuerst Liste von Miner
-					List<Block> newList = blockManagerMiner.list();
-					for (Block b : newList) {
+					List<Block> myBlockList = blockManagerMiner
+							.getBlockListFromId(blockManagerSecondUser.getIdFromLastBlock());
+					for (Block b : myBlockList) {
 						System.out.println("block = " + b);
-						try {
-							Block newBlock = b.copy();
-							blockManagerSecondUser.append(newBlock);
-						} catch (SaveException e) {
-							e.printStackTrace();
-						} catch (NoEntityFoundException e) {
-							e.printStackTrace();
-						}
 					}
 	
 					// Speicherung der Bloecke fuer Miner und Benutzer (secondUser)
@@ -192,11 +189,15 @@ public class Main {
 
 //DoSomethingWithTheBlock
 			} else if (args[0].equals("DoSomethingWithTheBlock")) {
-				int numberCoronaVaccinations = 0;
-				for (Block obj : blockManagerFirstUser.list()) {
-					numberCoronaVaccinations += blockManagerFirstUser.doSomethingWithTheBlock(obj, "Covid-19");
-					System.out.println("numberCoronaVaccinations = " + numberCoronaVaccinations);
+				int numberCDU = 0;
+				int numberFDP = 0;
+				for (Block obj : blockManagerMiner.list()) {
+					numberCDU += blockManagerMiner.doSomethingWithTheBlock(obj, "CDU");
+					System.out.println("Wahlergebnis: CDU = " + numberCDU);
+					numberFDP += blockManagerMiner.doSomethingWithTheBlock(obj, "FDP");
+					System.out.println("Wahlergebnis: FDP = " + numberFDP);
 				}
+
 
 			} else {
 				usage();
@@ -208,7 +209,7 @@ public class Main {
 		InitBlockchainManagerMiner initForMiner = new InitBlockchainManagerMiner("BlockchainMiner", miner, minerPassword);
 		try {
 			initForMiner.initDatabase(); // initialisiere Datenbank fuer Miner
-			initForMiner.initKeys();
+			initForMiner.initKeys(INITBASE_MINER );
 		} catch (InitializationAlreadyDoneException e) {
 			e.printStackTrace();
 		}
@@ -219,7 +220,7 @@ public class Main {
 		InitBlockchainManager initForUser = new InitBlockchainManager(persistanceUnit, username, userPassword);
 		try {
 			initForUser.initDatabase(); // initialisiere Datenbank fuer User
-			initForUser.initKeys();
+			initForUser.initKeys(INITBASE_USER);
 		} catch (InitializationAlreadyDoneException e) {
 			e.printStackTrace();
 		}
