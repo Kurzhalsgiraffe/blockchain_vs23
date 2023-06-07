@@ -38,6 +38,8 @@ public class InitBlockchainManagerMiner {
 					+ " instanceId varchar2(32) not null," + " nonce integer not null, "
 					+ " hashAlgorithm varchar2(20) not null," + " codeBase varchar2(20) not null,"
 					+ " prefix integer not null ) ",
+			"drop sequence blockchainuser_seq", 
+			"create sequence blockchainuser_seq start with 1 increment by 1 minvalue 1",
 			"drop table myblockchainuserkeys",
 			"create table myblockchainuserkeys(" + " id integer primary key" + ", publickey blob " + ", privatekey blob)",
 			"drop table blockchainuser",
@@ -68,9 +70,9 @@ public class InitBlockchainManagerMiner {
 		}
 		ta.commit();
 	}
-	public void initKeys() throws NoSuchRowException{
+	public void initKeys(int size) throws NoSuchRowException{
 		MyBlockchainuserKeysDao myKeys = new MyBlockchainuserKeysDao(em);
-		KeyPair keys = RSA.gen();
+		KeyPair keys = RSA.gen(size);
 		myKeys.save(new MyBlockchainuserKeys(keys.getPublic(), keys.getPrivate()) );
 	}
 

@@ -29,6 +29,7 @@ public class InitBlockchainManager {
 	private String userid;
 	private String password;
 	private final static String CREATE_STATEMENTS[] = {
+			"drop table Block",
 			"create table Block (" + " id integer primary key, " + " dataAsobject blob,"
 					+ " previousHash varchar2(255) not null, " + " hash varchar2(255) not null,"
 					+ " insertDate date not null, " + " userId varchar2(255) not null,"
@@ -65,10 +66,10 @@ public class InitBlockchainManager {
 		}
 		ta.commit();
 	}
-	public void initKeys() throws NoSuchRowException{
+	public void initKeys(int size) throws NoSuchRowException{
 		// generate personal private and public Key of User
 		MyBlockchainuserKeysDao myKeys = new MyBlockchainuserKeysDao(em);
-		KeyPair keys = RSA.gen();
+		KeyPair keys = RSA.gen(size);
 		myKeys.save(new MyBlockchainuserKeys(keys.getPublic(), keys.getPrivate()) );
 		
 		// add publicKey from User to Blockchainuser Table from miner

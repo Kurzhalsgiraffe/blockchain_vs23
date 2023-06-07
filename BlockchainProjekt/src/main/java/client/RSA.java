@@ -1,4 +1,4 @@
-package client;
+package main.java.client;
 
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
@@ -14,25 +14,16 @@ import javax.crypto.NoSuchPaddingException;
 
 public class RSA {
 		
-	public static void main(String[] args) {
-		KeyPair key = gen();
-		
-		String message = "Hallo Welt";
-		byte[] enc = encrypt(message, key.getPublic());
-		String dec = decrypt(enc, key.getPrivate());
-
-		System.out.println(new String(enc));
-		System.out.println(new String(dec));
-	}
 	
-	public static KeyPair gen() {
+	
+	public static KeyPair gen(int size) {
 		KeyPairGenerator keygen = null;
 		try {
 			keygen = KeyPairGenerator.getInstance("RSA");
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
-		keygen.initialize(1024);
+		keygen.initialize(size);
 		KeyPair key = keygen.generateKeyPair();
 		return key;
 	}
@@ -63,21 +54,28 @@ public class RSA {
 	
 	public static String decrypt(byte[] encryptedMessage, PrivateKey sk) {
 		byte[] dec = null;
-		Cipher cipher = null;
+		Cipher decryptCipher = null;
 
-		try {
-			cipher = Cipher.getInstance("RSA");
-			cipher.init(Cipher.DECRYPT_MODE, sk);
+		try {			
+			decryptCipher = Cipher.getInstance("RSA");
+			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+			EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(sk.getEncoded());
+
+			decryptCipher.init(Cipher.DECRYPT_MODE, keyFactory.generatePrivate(privateKeySpec));
+
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		} catch (NoSuchPaddingException e) {
 			e.printStackTrace();
 		} catch (InvalidKeyException e) {
 			e.printStackTrace();
+		} catch (InvalidKeySpecException e) {
+			e.printStackTrace();
 		}
 		
 		try {
-			dec = cipher.doFinal(encryptedMessage);
+			dec = decryptCipher.doFinal(encryptedMessage);
+			System.out.println( "decrypt:: dec = " + new String(dec, StandardCharsets.UTF_8));
 		} catch (IllegalBlockSizeException | BadPaddingException e) {
 			e.printStackTrace();
 		}

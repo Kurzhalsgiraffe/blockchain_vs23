@@ -1,4 +1,4 @@
-package client;
+package main.java.client;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.channels.spi.AbstractSelectableChannel;
