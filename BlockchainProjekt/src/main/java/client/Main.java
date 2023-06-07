@@ -197,7 +197,19 @@ public class Main {
 					numberFDP += blockManagerMiner.doSomethingWithTheBlock(obj, "FDP");
 					System.out.println("Wahlergebnis: FDP = " + numberFDP);
 				}
-
+//PruefeAbgegebeneWahl ErsterBenutzer
+			} else if (args[0].equals("PruefeAbgegebeneWahl ErsterBenutzer")) {
+				for (Block obj : blockManagerMiner.list()) {
+					// lies private Key von Erstem Benutzer
+					// lies private Key von Miner
+					// durchsuche Block  und dechiffriere mit pk von Miner 
+					// suche nach User-LKennung des betreffenden Wählers ...
+					// Ergebnis:
+					// 1. 1, falls Wähler Stimme abgegeben hat
+					// 2. 0, falls Wähler nicht gewählt hat
+					
+					
+				}
 
 			} else {
 				usage();
