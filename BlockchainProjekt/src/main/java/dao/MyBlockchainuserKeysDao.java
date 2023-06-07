@@ -12,7 +12,11 @@ public class MyBlockchainuserKeysDao {
 private EntityManager em;
 	
 	public MyBlockchainuserKeysDao() {
-		EntityManagerFactory emf = Persistence.createEntityManagerFactory("BlockchainMiner");
+		Map<String, String> addedOrOverridenProperties = new HashMap<String, String>();
+		addedOrOverridenProperties.put("hibernate.connection.username", "minerProjektVS_SS23");
+		addedOrOverridenProperties.put("hibernate.connection.password", "minerProjektVS_SS23");
+
+		EntityManagerFactory emf = Persistence.createEntityManagerFactory("BlockchainMiner", addedOrOverridenProperties);
 		em = emf.createEntityManager();
 	}
 	public MyBlockchainuserKeysDao(EntityManager em) {
