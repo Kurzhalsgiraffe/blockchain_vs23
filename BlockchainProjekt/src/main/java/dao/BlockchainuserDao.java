@@ -57,6 +57,11 @@ public class BlockchainuserDao {
 		
 		ta.commit();
 	}
+	public BigDecimal calculateNextId() {
+		return (BigDecimal) em.createNativeQuery("select blockchainuser_seq.nextval from dual")
+				.getSingleResult();
+	}
+	
 	public void save(String username, String password) throws NoSuchRowException {
 		EntityTransaction ta = em.getTransaction();
 		ta.begin();
@@ -70,7 +75,8 @@ public class BlockchainuserDao {
 		}
 		BigDecimal nextId = getIdFromLastBlock();
 		Blockchainuser bcUser = new Blockchainuser(username, password);
-		bcUser.setId(nextId.add(new BigDecimal(1)));
+//		bcUser.setId(nextId.add(new BigDecimal(1)));
+		bcUser.setId(calculateNextId());
 		em.persist(bcUser);
 		ta.commit();
 	}
