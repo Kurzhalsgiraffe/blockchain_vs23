@@ -1,11 +1,16 @@
-package main.java.client;
+package client;
 
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.PKCS8EncodedKeySpec;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -13,9 +18,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 public class RSA {
-		
-	
-	
+
 	public static KeyPair gen(int size) {
 		KeyPairGenerator keygen = null;
 		try {
@@ -51,12 +54,12 @@ public class RSA {
 
 		return encryptedMessage;
 	}
-	
+
 	public static String decrypt(byte[] encryptedMessage, PrivateKey sk) {
 		byte[] dec = null;
 		Cipher decryptCipher = null;
 
-		try {			
+		try {
 			decryptCipher = Cipher.getInstance("RSA");
 			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 			EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(sk.getEncoded());
@@ -72,7 +75,7 @@ public class RSA {
 		} catch (InvalidKeySpecException e) {
 			e.printStackTrace();
 		}
-		
+
 		try {
 			dec = decryptCipher.doFinal(encryptedMessage);
 			System.out.println( "decrypt:: dec = " + new String(dec, StandardCharsets.UTF_8));

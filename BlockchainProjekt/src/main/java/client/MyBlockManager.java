@@ -46,8 +46,7 @@ public class MyBlockManager extends BlockManager {
 	@Override
 	public int doSomethingWithTheBlock(Block theBlock, String searchText) {
 //		System.out.println("doSomethingWithTheBlock:: theBlock = " + theBlock);
-		System.out.println(
-				"doSomethingWithTheBlock:: Datum als Bytearray = " + Arrays.toString(theBlock.getDataAsObject()));
+		System.out.println("doSomethingWithTheBlock:: Datum als Bytearray = " + Arrays.toString(theBlock.getDataAsObject()));
 
 		MyBlockchainuserKeysDao keysDao = new MyBlockchainuserKeysDao();
 		MyBlockchainuserKeys keys = null;
@@ -60,25 +59,18 @@ public class MyBlockManager extends BlockManager {
 		String decryptedText = RSA.decrypt(theBlock.getDataAsObject(), keys.getPrivatekey());
 
 //		String text = new String(theBlock.getDataAsObject(), StandardCharsets.UTF_8);
-		System.out.println(
-				"doSomethingWithTheBlock :: text (von Bytearray zurueckkonvertiertes Datum) = " + decryptedText);
+		System.out.println("doSomethingWithTheBlock :: text (von Bytearray zurueckkonvertiertes Datum) = " + decryptedText);
 
 		// nur zur Demonstration: Textersetzung, z.B. f�r internationale Ausgabe
 		// (logischerweise KEIN Speichern im Block)
-		int returnValue = 0;
+		
 		String result = null;
 //		String wahl = decryptedText.split("Wahlergebnis: ");
-		switch (searchText) {
-		case "CDU":
-			if (decryptedText.contains(new StringBuffer("CDU")))
-				returnValue = 1;
-			break;
-		case "FDP":
-			if (decryptedText.contains(new StringBuffer("FDP")))
-				returnValue = 1;
-			break;
-		}
-		return returnValue;
-	}
 
+		if (decryptedText.contains(new StringBuffer(searchText))) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
 }

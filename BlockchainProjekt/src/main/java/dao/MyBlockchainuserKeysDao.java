@@ -5,8 +5,10 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 
-import model.entity.Blockchainuser;
 import model.entity.MyBlockchainuserKeys;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MyBlockchainuserKeysDao {
 private EntityManager em;
@@ -22,7 +24,7 @@ private EntityManager em;
 	public MyBlockchainuserKeysDao(EntityManager em) {
 		this.em = em;
 	}
-	
+
 	public MyBlockchainuserKeys getMyKeys() throws NoSuchRowException{
 		//zu erzeugendes Statement
 		// select * from myblockchainuserkeys where publickey != null;

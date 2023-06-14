@@ -1,25 +1,23 @@
 package client;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.channels.spi.AbstractSelectableChannel;
 import java.nio.charset.StandardCharsets;
-import java.security.KeyPair;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import com.fasterxml.classmate.util.ResolvedTypeCache.Key;
+import java.util.HashMap;
 
 import dao.*;
 import model.block.Block;
-import model.entity.MyBlockchainuserKeys;
 
 public class Main {
 	private final static int INITBASE_MINER = 4096;
 	private final static int INITBASE_USER = 1024;
+
+	private static String[] parties = {"CDU", "FDP", "SPD", "Gruene", "AFD", "Linke"};
+	private static HashMap<String, Integer> electionResult = new HashMap<String, Integer>();
 
 	public static void usage() {
 		System.out.println("Usage: java Main EinrichtenMiner");				// Schritt 0
@@ -32,7 +30,6 @@ public class Main {
 	}
 
 	public static void main(String[] args) throws NoSuchRowException {
-		// Zu ersetzen mit konkreten User-Angaben
 		String miner = "minerProjektVS_SS23";          
 		String minerPassword = "minerProjektVS_SS23";
 		String firstUser = "hantscma";
@@ -41,6 +38,10 @@ public class Main {
 		String secondPassword = "rothnina";
 		String thirdUser = "heinzelu";
 		String thirdPassword = "heinzelu";
+		
+		for (String p : parties) {
+			electionResult.put(p, 0);
+		}
 
 		// new ElectionGui();
 
@@ -78,8 +79,7 @@ public class Main {
 					
 					try {
 						byte[] encryptedFirstUser = RSA.encrypt(firstUser, bc1User.getMyKeys().getPublickey());
-						byte[] data = RSA.encrypt(new String(encryptedFirstUser) + "Wahlergebnis: CDU",
-								getMinerPublicKey());
+						byte[] data = RSA.encrypt(new String(encryptedFirstUser) + "Wahlergebnis: CDU", getMinerPublicKey());
 						block = new Block(data, 0);
 					} catch (NoSuchAlgorithmException e1) {
 						e1.printStackTrace();
@@ -189,14 +189,17 @@ public class Main {
 
 //DoSomethingWithTheBlock
 			} else if (args[0].equals("DoSomethingWithTheBlock")) {
-				int numberCDU = 0;
-				int numberFDP = 0;
 				for (Block obj : blockManagerMiner.list()) {
-					numberCDU += blockManagerMiner.doSomethingWithTheBlock(obj, "CDU");
-					System.out.println("Wahlergebnis: CDU = " + numberCDU);
-					numberFDP += blockManagerMiner.doSomethingWithTheBlock(obj, "FDP");
-					System.out.println("Wahlergebnis: FDP = " + numberFDP);
+					for (String p : parties) {
+						int res = blockManagerMiner.doSomethingWithTheBlock(obj, p);
+						electionResult.merge(p, res, Integer::sum);
+					}
 				}
+
+				for (String party: electionResult.keySet()) {
+				    System.out.println(party.toString() + " " + electionResult.get(party).toString());
+				}
+
 //PruefeAbgegebeneWahl ErsterBenutzer
 			} else if (args[0].equals("PruefeAbgegebeneWahl ErsterBenutzer")) {
 				for (Block obj : blockManagerMiner.list()) {
@@ -208,9 +211,7 @@ public class Main {
 					// 1. 1, falls Wähler Stimme abgegeben hat
 					// 2. 0, falls Wähler nicht gewählt hat
 					
-					
 				}
-
 			} else {
 				usage();
 			}
