@@ -77,11 +77,12 @@ public class MyBlockManager extends BlockManager {
 			
 			System.out.println("Block: " + Arrays.toString(block.getDataAsObject()));
 			System.out.println("decryptedText: " + Arrays.toString(decryptedText.getBytes()));
-			System.out.println();
+			System.out.println("decryptedText: " + decryptedText);
 			System.out.println("user: " + Arrays.toString(user.getBytes()));
 			System.out.println("encryptedUser" + Arrays.toString(encryptedUser));
+			System.out.println();
 
-			if(encryptedUser.toString().equals(user)) {
+			if(Arrays.equals(encryptedUser, user.getBytes())) {
 				return true;
 			}
 		}

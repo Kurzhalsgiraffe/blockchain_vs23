@@ -78,8 +78,8 @@ public class Main {
 					InitBlockchainManager bc1User = getUser("FirstUser", firstUserName, firstUserPassword);
 
 					try {
-						encryptedFirstUser = RSA.encrypt(firstUserName, bc1User.getMyKeys().getPublickey());
-						byte[] data = RSA.encrypt(encryptedFirstUser.toString() + " Wahlergebnis: " + firstUserChoice, getMinerPublicKey());
+						encryptedFirstUser = RSA.encrypt(firstUserName, bc1User.getMyKeys().getPublickey(), INITBASE_USER);
+						byte[] data = RSA.encrypt(encryptedFirstUser.toString() + " Wahlergebnis: " + firstUserChoice, getMinerPublicKey(), INITBASE_MINER);
 						block = new Block(data, 0);
 					} catch (NoSuchAlgorithmException e1) {
 						e1.printStackTrace();
@@ -121,8 +121,8 @@ public class Main {
 					InitBlockchainManager bc2User = getUser("SecondUser", secondUserName, secondUserPassword);
 					
 					try {
-						byte[] encryptedSecondUser = RSA.encrypt(secondUserName, bc2User.getMyKeys().getPublickey());
-						byte[] data = RSA.encrypt(encryptedSecondUser.toString() + " Wahlergebnis: " + secondUserChoice, getMinerPublicKey());
+						byte[] encryptedSecondUser = RSA.encrypt(secondUserName, bc2User.getMyKeys().getPublickey(), INITBASE_USER);
+						byte[] data = RSA.encrypt(encryptedSecondUser.toString() + " Wahlergebnis: " + secondUserChoice, getMinerPublicKey(), INITBASE_MINER);
 						block = new Block(data, 0);
 					} catch (NoSuchAlgorithmException e1) {
 						e1.printStackTrace();

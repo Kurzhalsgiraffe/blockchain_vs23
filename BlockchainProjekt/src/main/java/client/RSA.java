@@ -10,6 +10,7 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Arrays;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -18,24 +19,24 @@ import javax.crypto.NoSuchPaddingException;
 
 public class RSA {
 
-	public static KeyPair gen(int size) {
+	public static KeyPair gen(int keysize) {
 		KeyPairGenerator keygen = null;
 		try {
 			keygen = KeyPairGenerator.getInstance("RSA");
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
-		keygen.initialize(size);
+		keygen.initialize(keysize);
 		KeyPair key = keygen.generateKeyPair();
 		return key;
 	}
-	
-	public static byte[] encrypt(String message, PublicKey pk) {
+
+	public static byte[] encrypt(String message, PublicKey pk, int keysize) {
 		byte[] encryptedMessage = null;
 		Cipher cipher = null;
 
 		try {
-			cipher = Cipher.getInstance("RSA");
+			cipher = Cipher.getInstance("RSA/ECB/NoPadding");
 			cipher.init(Cipher.ENCRYPT_MODE, pk);
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
@@ -46,7 +47,8 @@ public class RSA {
 		}
 
 		try {
-			encryptedMessage = cipher.doFinal(message.getBytes());
+			byte[] paddedMessage = Arrays.copyOf(message.getBytes(), keysize/8);
+			encryptedMessage = cipher.doFinal(paddedMessage);
 		} catch (IllegalBlockSizeException | BadPaddingException e) {
 			e.printStackTrace();
 		}
@@ -59,7 +61,7 @@ public class RSA {
 		Cipher decryptCipher = null;
 
 		try {
-			decryptCipher = Cipher.getInstance("RSA");
+			decryptCipher = Cipher.getInstance("RSA/ECB/NoPadding");
 			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 			EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(sk.getEncoded());
 
@@ -81,6 +83,9 @@ public class RSA {
 			e.printStackTrace();
 		}
 
-		return dec.toString();
-	}
+		String msg = new String(dec);
+		msg = msg.substring(0, msg.indexOf('\0'));
+
+		return msg;
+    }
 }
