@@ -1,6 +1,5 @@
 package client;
 
-import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -78,7 +77,6 @@ public class RSA {
 
 		try {
 			dec = decryptCipher.doFinal(encryptedMessage);
-			System.out.println( "decrypt:: dec = " + new String(dec, StandardCharsets.UTF_8));
 		} catch (IllegalBlockSizeException | BadPaddingException e) {
 			e.printStackTrace();
 		}

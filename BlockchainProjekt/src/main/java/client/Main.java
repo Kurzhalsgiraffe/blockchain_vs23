@@ -20,28 +20,30 @@ public class Main {
 	private static HashMap<String, Integer> electionResult = new HashMap<String, Integer>();
 
 	public static void usage() {
-		System.out.println("Usage: java Main EinrichtenMiner");				// Schritt 0
-		System.out.println("Usage: java Main ZulassungUser");				// Schritt 1
-		System.out.println("Usage: java Main LoginErsterBenutzer");			// Schritt 2
-		System.out.println("Usage: java Main LoginZweiterBenutzer");		// Schritt 3
-		System.out.println("Usage: java Main Read");						// beliebig nach Schritt 2
-		System.out.println("Usage: java Main Validate");					// beliebig nach Schritt 2
+		System.out.println("Usage: java Main EinrichtenMiner");			// Schritt 0
+		System.out.println("Usage: java Main ZulassungUser");			// Schritt 1
+		System.out.println("Usage: java Main LoginErsterBenutzer");		// Schritt 2
+		System.out.println("Usage: java Main LoginZweiterBenutzer");	// Schritt 3
+		System.out.println("Usage: java Main Read");					// beliebig nach Schritt 2
+		System.out.println("Usage: java Main Validate");				// beliebig nach Schritt 2
 		System.out.println("Usage: java Main EvaluateElection");		// beliebig nach Schritt 2
 	}
 
 	public static void main(String[] args) throws Exception {
 		String miner = "minerProjektVS_SS23";          
 		String minerPassword = "minerProjektVS_SS23";
-		String firstUser = "hantscma";
-		String firstPassword = "hantscma";
-		String secondUser = "rothnina";
-		String secondPassword = "rothnina";
-		String thirdUser = "heinzelu";
-		String thirdPassword = "heinzelu";
-		
-		for (String p : parties) {
-			electionResult.put(p, 0);
-		}
+
+		String firstUserName = "hantscma";
+		String firstUserPassword = "hantscma";
+		String firstUserChoice = "Gruene";
+
+		String secondUserName = "rothnina";
+		String secondUserPassword = "rothnina";
+		String secondUserChoice = "FDP";
+
+		String thirdUserName = "heinzelu";
+		String thirdUserPassword = "heinzelu";
+		String thirdUserChoice = "CDU";
 
 		// new ElectionGui();
 
@@ -49,9 +51,9 @@ public class Main {
 			usage();
 		} else {
 			MyBlockManager blockManagerMiner = new MyBlockManager("BlockchainMiner", miner, minerPassword);
-			MyBlockManager blockManagerFirstUser = new MyBlockManager("FirstUser", firstUser, firstPassword);
-			MyBlockManager blockManagerSecondUser = new MyBlockManager("SecondUser", secondUser, secondPassword);
-			MyBlockManager blockManagerThirdUser = new MyBlockManager("ThirdUser", thirdUser, thirdPassword);
+			MyBlockManager blockManagerFirstUser = new MyBlockManager("FirstUser", firstUserName, firstUserPassword);
+			MyBlockManager blockManagerSecondUser = new MyBlockManager("SecondUser", secondUserName, secondUserPassword);
+			MyBlockManager blockManagerThirdUser = new MyBlockManager("ThirdUser", thirdUserName, thirdUserPassword);
 
 			List<Block> blockList = new ArrayList<Block>();
 
@@ -61,24 +63,24 @@ public class Main {
 
 //ZulassungUser
 			} else if (args[0].equals("ZulassungUser")) {
-				permitUser(firstUser, firstPassword);
-				permitUser(secondUser, secondPassword);
-				permitUser(thirdUser, thirdPassword);
+				permitUser(firstUserName, firstUserPassword);
+				permitUser(secondUserName, secondUserPassword);
+				permitUser(thirdUserName, thirdUserPassword);
 
 //LoginErsterBenutzer
 			} else if (args[0].equals("LoginErsterBenutzer")) {			
 				Block block = null;
-				
-				if (userEligible(firstUser, firstPassword)) {
-					System.out.println(firstUser + "ist zur Wahl zugelassen");
-					if (!userHasPublicKey(firstUser)) {
-						System.out.println(firstUser + "hat keinen Public Key, versuche ihn anzulegen");
-						initUser("FirstUser", firstUser, firstPassword);
+
+				if (userEligible(firstUserName, firstUserPassword)) {
+					System.out.println(firstUserName + "ist zur Wahl zugelassen");
+					if (!userHasPublicKey(firstUserName)) {
+						System.out.println(firstUserName + "hat keinen Public Key, versuche ihn anzulegen");
+						initUser("FirstUser", firstUserName, firstUserPassword);
 					}
-					InitBlockchainManager bc1User = getUser("FirstUser", firstUser, firstPassword);
-					
+					InitBlockchainManager bc1User = getUser("FirstUser", firstUserName, firstUserPassword);
+
 					try {
-						byte[] encryptedFirstUser = RSA.encrypt(firstUser, bc1User.getMyKeys().getPublickey());
+						byte[] encryptedFirstUser = RSA.encrypt(firstUserName, bc1User.getMyKeys().getPublickey());
 						byte[] data = RSA.encrypt(new String(encryptedFirstUser) + "Wahlergebnis: CDU", getMinerPublicKey());
 						block = new Block(data, 0);
 					} catch (NoSuchAlgorithmException e1) {
@@ -91,15 +93,15 @@ public class Main {
 					for (Block b : myBlockList) {
 						System.out.println("block = " + b);
 					}
-	
+
 					// Speicherung der Bloecke fuer Miner und Benutzer
 					try {
 						blockList.add(block); // Kopiere in Liste fuer Validierung (s.u.)
 						block.setId(blockManagerMiner.calculateNextId());
-	
+
 						blockManagerMiner.append(block); // Speichern des Blocks auf DB des Miners
 						blockManagerFirstUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock()));
-						
+
 					} catch (SaveException e) {
 						e.printStackTrace();
 					} catch (NoEntityFoundException e) {
@@ -113,16 +115,15 @@ public class Main {
 			} else if (args[0].equals("LoginZweiterBenutzer")) {
 				Block block = null;
 
-				if (userEligible(firstUser, firstPassword)) {
-					if (!userHasPublicKey(secondUser)) {
-						initUser("SecondUser", secondUser, secondPassword);
+				if (userEligible(firstUserName, firstUserPassword)) {
+					if (!userHasPublicKey(secondUserName)) {
+						initUser("SecondUser", secondUserName, secondUserPassword);
 					}
-					InitBlockchainManager bc2User = getUser("SecondUser", secondUser, secondPassword);
+					InitBlockchainManager bc2User = getUser("SecondUser", secondUserName, secondUserPassword);
 					
 					try {
-						byte[] encryptedSecondUser = RSA.encrypt(secondUser, bc2User.getMyKeys().getPublickey());
-						byte[] data = RSA.encrypt(new String(encryptedSecondUser) + "Wahlergebnis: FDP",
-								getMinerPublicKey());
+						byte[] encryptedSecondUser = RSA.encrypt(secondUserName, bc2User.getMyKeys().getPublickey());
+						byte[] data = RSA.encrypt(new String(encryptedSecondUser) + "Wahlergebnis: FDP", getMinerPublicKey());
 						block = new Block(data, 0);
 					} catch (NoSuchAlgorithmException e1) {
 						e1.printStackTrace();
@@ -199,12 +200,12 @@ public class Main {
 				for (Block obj : blockManagerMiner.list()) {
 					// lies private Key von Erstem Benutzer
 					// lies private Key von Miner
-					// durchsuche Block  und dechiffriere mit pk von Miner 
+					// durchsuche Block  und dechiffriere mit sk von Miner
 					// suche nach User-LKennung des betreffenden Wählers ...
 					// Ergebnis:
 					// 1. 1, falls Wähler Stimme abgegeben hat
 					// 2. 0, falls Wähler nicht gewählt hat
-					
+
 				}
 			} else {
 				usage();
@@ -232,27 +233,27 @@ public class Main {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void permitUser(String username, String userPassword) throws NoSuchRowException {
 		BlockchainuserDao b1 = new BlockchainuserDao();
 		b1.save(username, userPassword);
 	}
-	
+
 	public static boolean userEligible(String username, String userPassword) throws NoSuchRowException {
 		BlockchainuserDao b1 = new BlockchainuserDao();
 		return b1.userEligible(username, userPassword);
 	}
-	
+
 	public static boolean userHasPublicKey(String username) throws NoSuchRowException {
 		BlockchainuserDao b1 = new BlockchainuserDao();
 		return b1.userHasPublicKey(username);
 	}
-	
+
 	public static InitBlockchainManager getUser(String persistanceUnit, String username, String userPassword) throws NoSuchRowException {
 		InitBlockchainManager manager = new InitBlockchainManager(persistanceUnit, username, userPassword);
 		return manager;
 	}
-	
+
 	public static PublicKey getMinerPublicKey() throws NoSuchRowException {
 		MyBlockchainuserKeysDao bcuK = new MyBlockchainuserKeysDao();
 		PublicKey publicKeyMiner = bcuK.getMyKeys().getPublickey();
