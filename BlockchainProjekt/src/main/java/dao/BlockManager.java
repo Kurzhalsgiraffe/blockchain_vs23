@@ -22,7 +22,7 @@ public abstract class BlockManager {
 	// "UserId", welche "intern benoetigt wird fuer die Kontozuordnung
 	// Ggf. Ergaenzung um Versionen mit Rueckgabetype "void" bzw. anderen Datentypen
 	// oder Instanzen
-	public abstract int doSomethingWithTheBlock(Block block, String UserId) throws Exception;
+	public abstract String getSelectedPartyFromBlock(Block block) throws Exception;
 
 	public abstract BigDecimal calculateNextId();
 

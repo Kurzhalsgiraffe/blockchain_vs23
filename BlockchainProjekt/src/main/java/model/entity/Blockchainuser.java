@@ -1,19 +1,12 @@
 package model.entity;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.security.PublicKey;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EntityTransaction;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
-import main.java.dao.NoSuchRowException;
 
 //create table blockchainuser (
 //id    	smallint primary key,
@@ -25,7 +18,6 @@ import main.java.dao.NoSuchRowException;
 @Entity
 @Table(name="blockchainuser")
 public class Blockchainuser {
-	private static final long serialVersionUID = 1L;
 
 	@Id
 	@Column(name="id")

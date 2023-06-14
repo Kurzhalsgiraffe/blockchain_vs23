@@ -1,7 +1,6 @@
 package client;
 
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
 import dao.BlockManager;
@@ -31,8 +30,8 @@ public class MyBlockManager extends BlockManager {
 				.getSingleResult();
 	}
 
-	// wird genutzt in MyBlockManager "doSomethingWithTheBlock" zur �berpr�fung
-	// einer g�ltigen "userid"
+	// wird genutzt in MyBlockManager "getSelectedPartyFromBlock" zur Überprüfung
+	// einer gültigen "userid"
 	@Override
 	public String getUserId() {
 		return (String) super.getEntityManager().createNativeQuery("select user from dual").getSingleResult();
@@ -44,33 +43,19 @@ public class MyBlockManager extends BlockManager {
 	}
 
 	@Override
-	public int doSomethingWithTheBlock(Block theBlock, String searchText) {
-//		System.out.println("doSomethingWithTheBlock:: theBlock = " + theBlock);
-		System.out.println("doSomethingWithTheBlock:: Datum als Bytearray = " + Arrays.toString(theBlock.getDataAsObject()));
+	public String getSelectedPartyFromBlock(Block theBlock) {
+		System.out.println("getSelectedPartyFromBlock:: Block als Bytearray = " + Arrays.toString(theBlock.getDataAsObject()));
 
 		MyBlockchainuserKeysDao keysDao = new MyBlockchainuserKeysDao();
 		MyBlockchainuserKeys keys = null;
 		try {
 			keys = keysDao.getMyKeys();
 		} catch (NoSuchRowException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		String decryptedText = RSA.decrypt(theBlock.getDataAsObject(), keys.getPrivatekey());
 
-//		String text = new String(theBlock.getDataAsObject(), StandardCharsets.UTF_8);
-		System.out.println("doSomethingWithTheBlock :: text (von Bytearray zurueckkonvertiertes Datum) = " + decryptedText);
-
-		// nur zur Demonstration: Textersetzung, z.B. f�r internationale Ausgabe
-		// (logischerweise KEIN Speichern im Block)
-		
-		String result = null;
-//		String wahl = decryptedText.split("Wahlergebnis: ");
-
-		if (decryptedText.contains(new StringBuffer(searchText))) {
-			return 1;
-		} else {
-			return 0;
-		}
+		String wahl = decryptedText.split("Wahlergebnis: ")[1];
+		return wahl;
 	}
 }

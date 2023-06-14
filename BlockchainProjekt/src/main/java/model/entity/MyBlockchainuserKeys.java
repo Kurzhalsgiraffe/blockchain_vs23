@@ -1,7 +1,6 @@
 package model.entity;
 
 import java.security.*;
-import java.util.Arrays;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

@@ -26,10 +26,10 @@ public class Main {
 		System.out.println("Usage: java Main LoginZweiterBenutzer");		// Schritt 3
 		System.out.println("Usage: java Main Read");						// beliebig nach Schritt 2
 		System.out.println("Usage: java Main Validate");					// beliebig nach Schritt 2
-		System.out.println("Usage: java Main DoSomethingWithTheBlock");		// beliebig nach Schritt 2
+		System.out.println("Usage: java Main EvaluateElection");		// beliebig nach Schritt 2
 	}
 
-	public static void main(String[] args) throws NoSuchRowException {
+	public static void main(String[] args) throws Exception {
 		String miner = "minerProjektVS_SS23";          
 		String minerPassword = "minerProjektVS_SS23";
 		String firstUser = "hantscma";
@@ -96,8 +96,6 @@ public class Main {
 					try {
 						blockList.add(block); // Kopiere in Liste fuer Validierung (s.u.)
 						block.setId(blockManagerMiner.calculateNextId());
-						// je nach Anwendungsfalls ggf. vor Speicherung einzubauen!?
-						// blockManagerMiner.doSomethingWithTheBlock(block, user);
 	
 						blockManagerMiner.append(block); // Speichern des Blocks auf DB des Miners
 						blockManagerFirstUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock()));
@@ -143,8 +141,6 @@ public class Main {
 					try {
 							blockList.add(block); // Kopiere in Liste fuer Validierung (s.u.)
 							block.setId(blockManagerMiner.calculateNextId());
-							// je nach Anwendungsfalls ggf. vor Speicherung einzubauen!?
-							// blockManagerMiner.doSomethingWithTheBlock(block, user);
 	
 							blockManagerMiner.append(block); // Speichern des Blocks auf DB des Miners
 							blockManagerSecondUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerSecondUser.getIdFromLastBlock()));
@@ -187,13 +183,11 @@ public class Main {
 				BlockValidator blockvalidator = blockManagerMiner.validateBlockChain(blockManagerMiner.list());
 				System.out.println("blockvalidator = " + blockvalidator);
 
-//DoSomethingWithTheBlock
-			} else if (args[0].equals("DoSomethingWithTheBlock")) {
+//EvaluateElection
+			} else if (args[0].equals("EvaluateElection")) {
 				for (Block obj : blockManagerMiner.list()) {
-					for (String p : parties) {
-						int res = blockManagerMiner.doSomethingWithTheBlock(obj, p);
-						electionResult.merge(p, res, Integer::sum);
-					}
+					String res = blockManagerMiner.getSelectedPartyFromBlock(obj);
+					electionResult.merge(res, 1, Integer::sum);
 				}
 
 				for (String party: electionResult.keySet()) {
