@@ -81,6 +81,6 @@ public class RSA {
 			e.printStackTrace();
 		}
 
-		return new String(dec);
+		return dec.toString();
 	}
 }
