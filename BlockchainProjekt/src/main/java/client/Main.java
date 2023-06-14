@@ -16,7 +16,6 @@ public class Main {
 	private final static int INITBASE_MINER = 4096;
 	private final static int INITBASE_USER = 1024;
 
-	private static String[] parties = {"CDU", "FDP", "SPD", "Gruene", "AFD", "Linke"};
 	private static HashMap<String, Integer> electionResult = new HashMap<String, Integer>();
 
 	public static void usage() {
@@ -39,7 +38,7 @@ public class Main {
 
 		String secondUserName = "rothnina";
 		String secondUserPassword = "rothnina";
-		String secondUserChoice = "FDP";
+		String secondUserChoice = "Tierschutzpartei";
 
 		String thirdUserName = "heinzelu";
 		String thirdUserPassword = "heinzelu";
@@ -81,14 +80,14 @@ public class Main {
 
 					try {
 						byte[] encryptedFirstUser = RSA.encrypt(firstUserName, bc1User.getMyKeys().getPublickey());
-						byte[] data = RSA.encrypt(new String(encryptedFirstUser) + "Wahlergebnis: CDU", getMinerPublicKey());
+						byte[] data = RSA.encrypt(new String(encryptedFirstUser) + "Wahlergebnis: " + firstUserChoice, getMinerPublicKey());
 						block = new Block(data, 0);
 					} catch (NoSuchAlgorithmException e1) {
 						e1.printStackTrace();
 					} catch (UnsupportedEncodingException e1) {
 						e1.printStackTrace();
 					}
-	
+
 					List<Block> myBlockList = blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock());
 					for (Block b : myBlockList) {
 						System.out.println("block = " + b);
@@ -123,7 +122,7 @@ public class Main {
 					
 					try {
 						byte[] encryptedSecondUser = RSA.encrypt(secondUserName, bc2User.getMyKeys().getPublickey());
-						byte[] data = RSA.encrypt(new String(encryptedSecondUser) + "Wahlergebnis: FDP", getMinerPublicKey());
+						byte[] data = RSA.encrypt(new String(encryptedSecondUser) + "Wahlergebnis: " + secondUserChoice, getMinerPublicKey());
 						block = new Block(data, 0);
 					} catch (NoSuchAlgorithmException e1) {
 						e1.printStackTrace();
