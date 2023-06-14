@@ -31,7 +31,7 @@ public class RSA {
 		return key;
 	}
 
-	public static byte[] encrypt(String message, PublicKey pk, int keysize) {
+	public static byte[] encrypt(byte[] message, PublicKey pk, int keysize) {
 		byte[] encryptedMessage = null;
 		Cipher cipher = null;
 
@@ -47,7 +47,7 @@ public class RSA {
 		}
 
 		try {
-			byte[] paddedMessage = Arrays.copyOf(message.getBytes(), keysize/8);
+			byte[] paddedMessage = Arrays.copyOf(message, keysize/8);
 			encryptedMessage = cipher.doFinal(paddedMessage);
 		} catch (IllegalBlockSizeException | BadPaddingException e) {
 			e.printStackTrace();
@@ -56,7 +56,7 @@ public class RSA {
 		return encryptedMessage;
 	}
 
-	public static String decrypt(byte[] encryptedMessage, PrivateKey sk) {
+	public static byte[] decrypt(byte[] encryptedMessage, PrivateKey sk) {
 		byte[] dec = null;
 		Cipher decryptCipher = null;
 
@@ -83,9 +83,6 @@ public class RSA {
 			e.printStackTrace();
 		}
 
-		String msg = new String(dec);
-		msg = msg.substring(0, msg.indexOf('\0'));
-
-		return msg;
+		return dec;
     }
 }

@@ -55,10 +55,19 @@ public class MyBlockManager extends BlockManager {
 		} catch (NoSuchRowException e) {
 			e.printStackTrace();
 		}
-		String decryptedText = RSA.decrypt(theBlock.getDataAsObject(), keys.getPrivatekey());
+		byte[] decryptedText = RSA.decrypt(theBlock.getDataAsObject(), keys.getPrivatekey());
+		
+		int encryptedUsernameLength = decryptedText[0];
+		int choiceLength = decryptedText[1];
+		if (encryptedUsernameLength < 0) {
+			encryptedUsernameLength += 255;
+		}
+		if (choiceLength < 0) {
+			choiceLength += 255;
+		}
+		String choice = new String(Arrays.copyOfRange(decryptedText, 2+encryptedUsernameLength, choiceLength + encryptedUsernameLength + 3));
 
-		String wahl = decryptedText.split(" Wahlergebnis: ")[1];
-		return wahl;
+		return choice;
 	}
 	
 	public boolean checkIfUserHasVoted(byte[] encryptedUser) {
@@ -72,15 +81,17 @@ public class MyBlockManager extends BlockManager {
 
 		List<Block> blockList = list();
 		for (Block block : blockList){
-			String decryptedText = RSA.decrypt(block.getDataAsObject(), keys.getPrivatekey());
-			String user = decryptedText.split(" Wahlergebnis: ")[0];
+			byte[] decryptedText = RSA.decrypt(block.getDataAsObject(), keys.getPrivatekey());
+			
+			int encryptedUsernameLength = decryptedText[0];
+			if (encryptedUsernameLength < 0) {
+				encryptedUsernameLength += 255;
+			}
 
-			System.out.println("decryptedText: " + decryptedText);
-			System.out.println("user: " + user.getBytes());
-			System.out.println("encryptedUser: " + encryptedUser);
-			System.out.println();
+			byte[] encryptedUsername = Arrays.copyOfRange(decryptedText, 2, encryptedUsernameLength + 3);
 
-			if(Arrays.equals(encryptedUser, user.getBytes())) {
+
+			if(Arrays.equals(encryptedUser, encryptedUsername)) {
 				return true;
 			}
 		}

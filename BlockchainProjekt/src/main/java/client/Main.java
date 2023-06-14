@@ -1,15 +1,24 @@
 package client;
 
+import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 
-import dao.*;
+import dao.BlockValidator;
+import dao.BlockchainuserDao;
+import dao.InitBlockchainManager;
+import dao.InitBlockchainManagerMiner;
+import dao.InitializationAlreadyDoneException;
+import dao.MyBlockchainuserKeysDao;
+import dao.NoEntityFoundException;
+import dao.NoSuchRowException;
+import dao.SaveException;
+import dao.TargetListNotEmptyException;
 import model.block.Block;
 
 public class Main {
@@ -70,16 +79,25 @@ public class Main {
 				byte[] encryptedFirstUser = null;
 
 				if (userEligible(firstUserName, firstUserPassword)) {
-					System.out.println(firstUserName + "ist zur Wahl zugelassen");
+					System.out.println(firstUserName + " ist zur Wahl zugelassen");
 					if (!userHasPublicKey(firstUserName)) {
-						System.out.println(firstUserName + "hat keinen Public Key, versuche ihn anzulegen");
+						System.out.println(firstUserName + " hat keinen Public Key, versuche ihn anzulegen");
 						initUser("FirstUser", firstUserName, firstUserPassword);
 					}
 					InitBlockchainManager bc1User = getUser("FirstUser", firstUserName, firstUserPassword);
 
 					try {
-						encryptedFirstUser = RSA.encrypt(firstUserName, bc1User.getMyKeys().getPublickey(), INITBASE_USER);
-						byte[] data = RSA.encrypt(encryptedFirstUser.toString() + " Wahlergebnis: " + firstUserChoice, getMinerPublicKey(), INITBASE_MINER);
+						encryptedFirstUser = RSA.encrypt(firstUserName.getBytes(), bc1User.getMyKeys().getPublickey(), INITBASE_USER);
+						
+						ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+						outputStream.write(encryptedFirstUser.length);
+						outputStream.write(firstUserChoice.getBytes().length);
+						outputStream.write(encryptedFirstUser);
+						outputStream.write(firstUserChoice.getBytes());
+						
+						byte unencryptedData[] = outputStream.toByteArray( );
+						
+						byte[] data = RSA.encrypt(unencryptedData, getMinerPublicKey(), INITBASE_MINER);
 						block = new Block(data, 0);
 					} catch (NoSuchAlgorithmException e1) {
 						e1.printStackTrace();
@@ -111,18 +129,30 @@ public class Main {
 				}
 
 //LoginZweiterBenutzer
-			} else if (args[0].equals("LoginZweiterBenutzer")) {
+			} else if (args[0].equals("LoginZweiterBenutzer")) {			
 				Block block = null;
+				byte[] encryptedSecondUser = null;
 
-				if (userEligible(firstUserName, firstUserPassword)) {
+				if (userEligible(secondUserName, secondUserPassword)) {
+					System.out.println(secondUserName + " ist zur Wahl zugelassen");
 					if (!userHasPublicKey(secondUserName)) {
+						System.out.println(secondUserName + " hat keinen Public Key, versuche ihn anzulegen");
 						initUser("SecondUser", secondUserName, secondUserPassword);
 					}
 					InitBlockchainManager bc2User = getUser("SecondUser", secondUserName, secondUserPassword);
-					
+
 					try {
-						byte[] encryptedSecondUser = RSA.encrypt(secondUserName, bc2User.getMyKeys().getPublickey(), INITBASE_USER);
-						byte[] data = RSA.encrypt(encryptedSecondUser.toString() + " Wahlergebnis: " + secondUserChoice, getMinerPublicKey(), INITBASE_MINER);
+						encryptedSecondUser = RSA.encrypt(secondUserName.getBytes(), bc2User.getMyKeys().getPublickey(), INITBASE_USER);
+						
+						ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+						outputStream.write(encryptedSecondUser.length);
+						outputStream.write(secondUserChoice.getBytes().length);
+						outputStream.write(encryptedSecondUser);
+						outputStream.write(secondUserChoice.getBytes());
+						
+						byte unencryptedData[] = outputStream.toByteArray();
+						
+						byte[] data = RSA.encrypt(unencryptedData, getMinerPublicKey(), INITBASE_MINER);
 						block = new Block(data, 0);
 					} catch (NoSuchAlgorithmException e1) {
 						e1.printStackTrace();
@@ -130,17 +160,20 @@ public class Main {
 						e1.printStackTrace();
 					}
 
-					// Kopiere zuerst Liste von Miner
 					List<Block> myBlockList = blockManagerMiner.getBlockListFromId(blockManagerSecondUser.getIdFromLastBlock());
 					for (Block b : myBlockList) {
 						System.out.println("block = " + b);
 					}
-	
-					// Speicherung der Bloecke fuer Miner und Benutzer (secondUser)
+
+					// Speicherung der Bloecke fuer Miner und Benutzer
 					try {
+						if (blockManagerMiner.checkIfUserHasVoted(encryptedSecondUser)) {
+							System.out.println(secondUserName + " hat schon gewählt. Wahl wurde nicht übernommen");
+						} else {
 							block.setId(blockManagerMiner.calculateNextId());
 							blockManagerMiner.append(block); // Speichern des Blocks auf DB des Miners
 							blockManagerSecondUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerSecondUser.getIdFromLastBlock()));
+						}
 					} catch (SaveException e) {
 						e.printStackTrace();
 					} catch (NoEntityFoundException e) {
