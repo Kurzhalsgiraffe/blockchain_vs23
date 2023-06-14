@@ -73,7 +73,7 @@ public class MyBlockManager extends BlockManager {
 		List<Block> blockList = list();
 		for (Block block : blockList){
 			String decryptedText = RSA.decrypt(block.getDataAsObject(), keys.getPrivatekey());
-			
+			System.out.println(decryptedText);
 			String user = decryptedText.split(" Wahlergebnis: ")[0];
 			System.out.println("user");
 			System.out.println(user);

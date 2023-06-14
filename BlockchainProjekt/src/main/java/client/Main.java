@@ -78,8 +78,8 @@ public class Main {
 					InitBlockchainManager bc1User = getUser("FirstUser", firstUserName, firstUserPassword);
 
 					try {
-						encryptedFirstUser = RSA.encrypt(firstUserName, bc1User.getMyKeys().getPublickey());						
-						byte[] data = RSA.encrypt(new String(encryptedFirstUser) + " Wahlergebnis: " + firstUserChoice, getMinerPublicKey());
+						encryptedFirstUser = RSA.encrypt(firstUserName, bc1User.getMyKeys().getPublickey());
+						byte[] data = RSA.encrypt(encryptedFirstUser.toString() + " Wahlergebnis: " + firstUserChoice, getMinerPublicKey());
 						block = new Block(data, 0);
 					} catch (NoSuchAlgorithmException e1) {
 						e1.printStackTrace();
@@ -122,14 +122,14 @@ public class Main {
 					
 					try {
 						byte[] encryptedSecondUser = RSA.encrypt(secondUserName, bc2User.getMyKeys().getPublickey());
-						byte[] data = RSA.encrypt(new String(encryptedSecondUser) + " Wahlergebnis: " + secondUserChoice, getMinerPublicKey());
+						byte[] data = RSA.encrypt(encryptedSecondUser.toString() + " Wahlergebnis: " + secondUserChoice, getMinerPublicKey());
 						block = new Block(data, 0);
 					} catch (NoSuchAlgorithmException e1) {
 						e1.printStackTrace();
 					} catch (UnsupportedEncodingException e1) {
 						e1.printStackTrace();
 					}
-	
+
 					// Kopiere zuerst Liste von Miner
 					List<Block> myBlockList = blockManagerMiner.getBlockListFromId(blockManagerSecondUser.getIdFromLastBlock());
 					for (Block b : myBlockList) {
