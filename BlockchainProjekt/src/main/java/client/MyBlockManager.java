@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import client.RSA;
 import dao.BlockManager;
 import dao.MyBlockchainuserKeysDao;
 import dao.NoSuchRowException;
@@ -62,7 +61,7 @@ public class MyBlockManager extends BlockManager {
 		return wahl;
 	}
 	
-	public boolean CheckIfUserHasVoted(byte[] encryptedUser, Block block) {
+	public boolean checkIfUserHasVoted(byte[] encryptedUser) {
 		MyBlockchainuserKeysDao keysDao = new MyBlockchainuserKeysDao();
 		MyBlockchainuserKeys keys = null;
 		try {
@@ -70,15 +69,20 @@ public class MyBlockManager extends BlockManager {
 		} catch (NoSuchRowException e) {
 			e.printStackTrace();
 		}
+
 		List<Block> blockList = list();
 		for (Block block : blockList){
 			String decryptedText = RSA.decrypt(block.getDataAsObject(), keys.getPrivatekey());
-
-		String user = decryptedText.split("Wahlergebnis: ")[0];
-		if(encryptedUser.toString().equals(user)) {
-			System.out.println("Du hast schon gewählt.");
-			return true;
+			
+			String user = decryptedText.split(" Wahlergebnis: ")[0];
+			System.out.println("user");
+			System.out.println(user);
+			System.out.println("encryptedUser");
+			System.out.println(encryptedUser.toString());
+			if(encryptedUser.toString().equals(user)) {
+				return true;
+			}
 		}
-		}return false;
+		return false;
 	}
 }

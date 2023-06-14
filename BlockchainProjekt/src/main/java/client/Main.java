@@ -67,6 +67,7 @@ public class Main {
 //LoginErsterBenutzer
 			} else if (args[0].equals("LoginErsterBenutzer")) {			
 				Block block = null;
+				byte[] encryptedFirstUser = null;
 
 				if (userEligible(firstUserName, firstUserPassword)) {
 					System.out.println(firstUserName + "ist zur Wahl zugelassen");
@@ -77,7 +78,7 @@ public class Main {
 					InitBlockchainManager bc1User = getUser("FirstUser", firstUserName, firstUserPassword);
 
 					try {
-						byte[] encryptedFirstUser = RSA.encrypt(firstUserName, bc1User.getMyKeys().getPublickey());
+						encryptedFirstUser = RSA.encrypt(firstUserName, bc1User.getMyKeys().getPublickey());						
 						byte[] data = RSA.encrypt(new String(encryptedFirstUser) + " Wahlergebnis: " + firstUserChoice, getMinerPublicKey());
 						block = new Block(data, 0);
 					} catch (NoSuchAlgorithmException e1) {
@@ -93,10 +94,13 @@ public class Main {
 
 					// Speicherung der Bloecke fuer Miner und Benutzer
 					try {
-						block.setId(blockManagerMiner.calculateNextId());
-						blockManagerMiner.append(block); // Speichern des Blocks auf DB des Miners
-						blockManagerFirstUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock()));
-
+						if (blockManagerMiner.checkIfUserHasVoted(encryptedFirstUser)) {
+							System.out.println(firstUserName + " hat schon gewählt. Wahl wurde nicht übernommen");
+						} else {
+							block.setId(blockManagerMiner.calculateNextId());
+							blockManagerMiner.append(block); // Speichern des Blocks auf DB des Miners
+							blockManagerFirstUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock()));
+						}
 					} catch (SaveException e) {
 						e.printStackTrace();
 					} catch (NoEntityFoundException e) {
