@@ -54,8 +54,6 @@ public class Main {
 			MyBlockManager blockManagerSecondUser = new MyBlockManager("SecondUser", secondUserName, secondUserPassword);
 			MyBlockManager blockManagerThirdUser = new MyBlockManager("ThirdUser", thirdUserName, thirdUserPassword);
 
-			List<Block> blockList = new ArrayList<Block>();
-
 //EinrichtenMiner
 			if (args[0].equals("EinrichtenMiner")) {
 			initMiner(miner, minerPassword);
@@ -80,7 +78,7 @@ public class Main {
 
 					try {
 						byte[] encryptedFirstUser = RSA.encrypt(firstUserName, bc1User.getMyKeys().getPublickey());
-						byte[] data = RSA.encrypt(new String(encryptedFirstUser) + "Wahlergebnis: " + firstUserChoice, getMinerPublicKey());
+						byte[] data = RSA.encrypt(new String(encryptedFirstUser) + " Wahlergebnis: " + firstUserChoice, getMinerPublicKey());
 						block = new Block(data, 0);
 					} catch (NoSuchAlgorithmException e1) {
 						e1.printStackTrace();
@@ -95,9 +93,7 @@ public class Main {
 
 					// Speicherung der Bloecke fuer Miner und Benutzer
 					try {
-						blockList.add(block); // Kopiere in Liste fuer Validierung (s.u.)
 						block.setId(blockManagerMiner.calculateNextId());
-
 						blockManagerMiner.append(block); // Speichern des Blocks auf DB des Miners
 						blockManagerFirstUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock()));
 
@@ -122,7 +118,7 @@ public class Main {
 					
 					try {
 						byte[] encryptedSecondUser = RSA.encrypt(secondUserName, bc2User.getMyKeys().getPublickey());
-						byte[] data = RSA.encrypt(new String(encryptedSecondUser) + "Wahlergebnis: " + secondUserChoice, getMinerPublicKey());
+						byte[] data = RSA.encrypt(new String(encryptedSecondUser) + " Wahlergebnis: " + secondUserChoice, getMinerPublicKey());
 						block = new Block(data, 0);
 					} catch (NoSuchAlgorithmException e1) {
 						e1.printStackTrace();
@@ -131,17 +127,14 @@ public class Main {
 					}
 	
 					// Kopiere zuerst Liste von Miner
-					List<Block> myBlockList = blockManagerMiner
-							.getBlockListFromId(blockManagerSecondUser.getIdFromLastBlock());
+					List<Block> myBlockList = blockManagerMiner.getBlockListFromId(blockManagerSecondUser.getIdFromLastBlock());
 					for (Block b : myBlockList) {
 						System.out.println("block = " + b);
 					}
 	
 					// Speicherung der Bloecke fuer Miner und Benutzer (secondUser)
 					try {
-							blockList.add(block); // Kopiere in Liste fuer Validierung (s.u.)
 							block.setId(blockManagerMiner.calculateNextId());
-	
 							blockManagerMiner.append(block); // Speichern des Blocks auf DB des Miners
 							blockManagerSecondUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerSecondUser.getIdFromLastBlock()));
 					} catch (SaveException e) {
