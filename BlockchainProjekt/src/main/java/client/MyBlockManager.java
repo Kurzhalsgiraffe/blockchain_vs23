@@ -74,12 +74,10 @@ public class MyBlockManager extends BlockManager {
 		for (Block block : blockList){
 			String decryptedText = RSA.decrypt(block.getDataAsObject(), keys.getPrivatekey());
 			String user = decryptedText.split(" Wahlergebnis: ")[0];
-			
-			System.out.println("Block: " + Arrays.toString(block.getDataAsObject()));
-			System.out.println("decryptedText: " + Arrays.toString(decryptedText.getBytes()));
+
 			System.out.println("decryptedText: " + decryptedText);
-			System.out.println("user: " + Arrays.toString(user.getBytes()));
-			System.out.println("encryptedUser" + Arrays.toString(encryptedUser));
+			System.out.println("user: " + user.getBytes());
+			System.out.println("encryptedUser: " + encryptedUser);
 			System.out.println();
 
 			if(Arrays.equals(encryptedUser, user.getBytes())) {
