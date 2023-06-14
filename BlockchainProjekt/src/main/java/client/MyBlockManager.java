@@ -3,7 +3,9 @@ package client;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
+import client.RSA;
 import dao.BlockManager;
 import dao.MyBlockchainuserKeysDao;
 import dao.NoSuchRowException;
@@ -68,9 +70,15 @@ public class MyBlockManager extends BlockManager {
 		} catch (NoSuchRowException e) {
 			e.printStackTrace();
 		}
-		String decryptedText = RSA.decrypt(block.getDataAsObject(), keys.getPrivatekey());
+		List<Block> blockList = list();
+		for (Block block : blockList){
+			String decryptedText = RSA.decrypt(block.getDataAsObject(), keys.getPrivatekey());
 
-		String user = decryptedText.split(" Wahlergebnis: ")[0];
-		return encryptedUser.toString().equals(user);
+		String user = decryptedText.split("Wahlergebnis: ")[0];
+		if(encryptedUser.toString().equals(user)) {
+			System.out.println("Du hast schon gewählt.");
+			return true;
+		}
+		}return false;
 	}
 }
