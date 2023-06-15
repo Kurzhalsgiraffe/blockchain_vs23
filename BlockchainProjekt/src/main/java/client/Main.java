@@ -1,6 +1,7 @@
 package client;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
@@ -85,25 +86,11 @@ public class Main {
 						initUser("FirstUser", firstUserName, firstUserPassword);
 					}
 					InitBlockchainManager bc1User = getUser("FirstUser", firstUserName, firstUserPassword);
-
-					try {
-						encryptedFirstUser = RSA.encrypt(firstUserName.getBytes(), bc1User.getMyKeys().getPublickey(), INITBASE_USER);
-						
-						ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
-						outputStream.write(encryptedFirstUser.length);
-						outputStream.write(firstUserChoice.getBytes().length);
-						outputStream.write(encryptedFirstUser);
-						outputStream.write(firstUserChoice.getBytes());
-						
-						byte unencryptedData[] = outputStream.toByteArray( );
-						
-						byte[] data = RSA.encrypt(unencryptedData, getMinerPublicKey(), INITBASE_MINER);
-						block = new Block(data, 0);
-					} catch (NoSuchAlgorithmException e1) {
-						e1.printStackTrace();
-					} catch (UnsupportedEncodingException e1) {
-						e1.printStackTrace();
-					}
+					encryptedFirstUser = RSA.encrypt(firstUserName.getBytes(), bc1User.getMyKeys().getPublickey(), INITBASE_USER);
+					
+					byte[] blockData = generateBlockData(encryptedFirstUser, firstUserChoice);
+					byte[] encryptedBlockData = RSA.encrypt(blockData, getMinerPublicKey(), INITBASE_MINER);
+					block = new Block(encryptedBlockData, 0);
 
 					List<Block> myBlockList = blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock());
 					for (Block b : myBlockList) {
@@ -141,24 +128,11 @@ public class Main {
 					}
 					InitBlockchainManager bc2User = getUser("SecondUser", secondUserName, secondUserPassword);
 
-					try {
-						encryptedSecondUser = RSA.encrypt(secondUserName.getBytes(), bc2User.getMyKeys().getPublickey(), INITBASE_USER);
-						
-						ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
-						outputStream.write(encryptedSecondUser.length);
-						outputStream.write(secondUserChoice.getBytes().length);
-						outputStream.write(encryptedSecondUser);
-						outputStream.write(secondUserChoice.getBytes());
-						
-						byte unencryptedData[] = outputStream.toByteArray();
-						
-						byte[] data = RSA.encrypt(unencryptedData, getMinerPublicKey(), INITBASE_MINER);
-						block = new Block(data, 0);
-					} catch (NoSuchAlgorithmException e1) {
-						e1.printStackTrace();
-					} catch (UnsupportedEncodingException e1) {
-						e1.printStackTrace();
-					}
+					encryptedSecondUser = RSA.encrypt(secondUserName.getBytes(), bc2User.getMyKeys().getPublickey(), INITBASE_USER);
+
+					byte[] blockData = generateBlockData(encryptedSecondUser, secondUserChoice);
+					byte[] encryptedBlockData = RSA.encrypt(blockData, getMinerPublicKey(), INITBASE_MINER);
+					block = new Block(encryptedBlockData, 0);
 
 					List<Block> myBlockList = blockManagerMiner.getBlockListFromId(blockManagerSecondUser.getIdFromLastBlock());
 					for (Block b : myBlockList) {
@@ -281,6 +255,20 @@ public class Main {
 	public static InitBlockchainManager getUser(String persistanceUnit, String username, String userPassword) throws NoSuchRowException {
 		InitBlockchainManager manager = new InitBlockchainManager(persistanceUnit, username, userPassword);
 		return manager;
+	}
+	
+	public static byte[] generateBlockData(byte[] encryptedUser, String userChoice) {
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+		outputStream.write(encryptedUser.length);
+		outputStream.write(userChoice.getBytes().length);
+		try {
+			outputStream.write(encryptedUser);
+			outputStream.write(userChoice.getBytes());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		byte[] blockData = outputStream.toByteArray();
+		return blockData;
 	}
 
 	public static PublicKey getMinerPublicKey() throws NoSuchRowException {
