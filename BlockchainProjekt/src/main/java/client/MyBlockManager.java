@@ -32,8 +32,8 @@ public class MyBlockManager extends BlockManager {
 				.getSingleResult();
 	}
 
-	// wird genutzt in MyBlockManager "getSelectedPartyFromBlock" zur Überprüfung
-	// einer gültigen "userid"
+	// wird genutzt in MyBlockManager "getSelectedPartyFromBlock" zur Ueberpruefung
+	// einer gueltigen "userid"
 	@Override
 	public String getUserId() {
 		return (String) super.getEntityManager().createNativeQuery("select user from dual").getSingleResult();

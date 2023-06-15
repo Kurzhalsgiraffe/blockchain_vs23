@@ -69,7 +69,7 @@ public class ElectionGui {
 		
 		btnLogin = new Button("Anmelden");
 
-		labelElectionChoices = new Label("Wahl Möglichkeiten: ");
+		labelElectionChoices = new Label("Wahl Moeglichkeiten: ");
 		electionChoices = new String[] {"CDU", "FDP", "CSU", "Gruene", "AFD"};
 		
 		btnElection = new Button("waehlen");
