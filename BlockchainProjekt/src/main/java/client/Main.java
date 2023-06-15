@@ -2,9 +2,7 @@ package client;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,17 +14,31 @@ import dao.InitBlockchainManager;
 import dao.InitBlockchainManagerMiner;
 import dao.InitializationAlreadyDoneException;
 import dao.MyBlockchainuserKeysDao;
-import dao.NoEntityFoundException;
 import dao.NoSuchRowException;
-import dao.SaveException;
-import dao.TargetListNotEmptyException;
 import model.block.Block;
 
 public class Main {
 	private final static int INITBASE_MINER = 4096;
 	private final static int INITBASE_USER = 1024;
+	
+	private final static String miner = "minerProjektVS_SS23";          
+	private final static String minerPassword = "minerProjektVS_SS23";
 
-	private static HashMap<String, Integer> electionResult = new HashMap<String, Integer>();
+	private final static String firstUserName = "hantscma";
+	private final static String firstUserPassword = "hantscma";
+	private final static String firstUserChoice = "Gruene";
+
+	private final static String secondUserName = "rothnina";
+	private final static String secondUserPassword = "rothnina";
+	private final static String secondUserChoice = "Tierschutzpartei";
+
+	private final static String thirdUserName = "heinzelu";
+	private final static String thirdUserPassword = "heinzelu";
+	private final static String thirdUserChoice = "CDU";
+
+	private final static MyBlockManager blockManagerMiner = new MyBlockManager("BlockchainMiner", miner, minerPassword);
+	private final static MyBlockManager blockManagerFirstUser = new MyBlockManager("FirstUser", firstUserName, firstUserPassword);
+	private final static MyBlockManager blockManagerSecondUser = new MyBlockManager("SecondUser", secondUserName, secondUserPassword);
 
 	public static void usage() {
 		System.out.println("Usage: java Main EinrichtenMiner");			// Schritt 0
@@ -39,30 +51,12 @@ public class Main {
 	}
 
 	public static void main(String[] args) throws Exception {
-		String miner = "minerProjektVS_SS23";          
-		String minerPassword = "minerProjektVS_SS23";
-
-		String firstUserName = "hantscma";
-		String firstUserPassword = "hantscma";
-		String firstUserChoice = "Gruene";
-
-		String secondUserName = "rothnina";
-		String secondUserPassword = "rothnina";
-		String secondUserChoice = "Tierschutzpartei";
-
-		String thirdUserName = "heinzelu";
-		String thirdUserPassword = "heinzelu";
-		String thirdUserChoice = "CDU";
 
 		// new ElectionGui();
 
 		if (args.length < 1) {
 			usage();
 		} else {
-			MyBlockManager blockManagerMiner = new MyBlockManager("BlockchainMiner", miner, minerPassword);
-			MyBlockManager blockManagerFirstUser = new MyBlockManager("FirstUser", firstUserName, firstUserPassword);
-			MyBlockManager blockManagerSecondUser = new MyBlockManager("SecondUser", secondUserName, secondUserPassword);
-			MyBlockManager blockManagerThirdUser = new MyBlockManager("ThirdUser", thirdUserName, thirdUserPassword);
 
 //EinrichtenMiner
 			if (args[0].equals("EinrichtenMiner")) {
@@ -76,85 +70,82 @@ public class Main {
 
 //LoginErsterBenutzer
 			} else if (args[0].equals("LoginErsterBenutzer")) {			
-				Block block = null;
-				byte[] encryptedFirstUser = null;
 
+				// Überprüfe ob der User zur Wahl zugelassen ist
 				if (userEligible(firstUserName, firstUserPassword)) {
 					System.out.println(firstUserName + " ist zur Wahl zugelassen");
+					
+					// Überprüfe ob User bereits ein Keypair erzeugt hat
 					if (!userHasPublicKey(firstUserName)) {
 						System.out.println(firstUserName + " hat keinen Public Key, versuche ihn anzulegen");
-						initUser("FirstUser", firstUserName, firstUserPassword);
+						initUser("SecondUser", firstUserName, firstUserPassword);
 					}
-					InitBlockchainManager bc1User = getUser("FirstUser", firstUserName, firstUserPassword);
-					encryptedFirstUser = RSA.encrypt(firstUserName.getBytes(), bc1User.getMyKeys().getPublickey(), INITBASE_USER);
-					
-					byte[] blockData = generateBlockData(encryptedFirstUser, firstUserChoice);
-					byte[] encryptedBlockData = RSA.encrypt(blockData, getMinerPublicKey(), INITBASE_MINER);
-					block = new Block(encryptedBlockData, 0);
 
 					List<Block> myBlockList = blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock());
 					for (Block b : myBlockList) {
 						System.out.println("block = " + b);
 					}
+					
+					InitBlockchainManager bc2User = getUser("FirstUser", firstUserName, firstUserPassword);
+					byte[] encryptedUser = RSA.encrypt(firstUserName.getBytes(), bc2User.getMyKeys().getPublickey(), INITBASE_USER);
 
-					// Speicherung der Bloecke fuer Miner und Benutzer
-					try {
-						if (blockManagerMiner.checkIfUserHasVoted(encryptedFirstUser)) {
-							System.out.println(firstUserName + " hat schon gewählt. Wahl wurde nicht übernommen");
-						} else {
-							block.setId(blockManagerMiner.calculateNextId());
-							blockManagerMiner.append(block); // Speichern des Blocks auf DB des Miners
-							blockManagerFirstUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock()));
-						}
-					} catch (SaveException e) {
-						e.printStackTrace();
-					} catch (NoEntityFoundException e) {
-						e.printStackTrace();
-					} catch (TargetListNotEmptyException e) {
-						e.printStackTrace();
+					if (blockManagerMiner.checkIfUserHasVoted(encryptedUser)) {
+						System.out.println(firstUserName + " hat schon gewählt. Wahl wurde nicht übernommen");
+					} else {
+						// Generiere Block aus dem verschlüsselten Usernamen und dessen Wahl
+						byte[] blockData = generateBlockData(encryptedUser, firstUserChoice);
+						byte[] encryptedBlockData = RSA.encrypt(blockData, getMinerPublicKey(), INITBASE_MINER);
+						
+						// Erzeuge Block und weise ihm eine ID zu
+						Block block = new Block(encryptedBlockData, 0);
+						block.setId(blockManagerMiner.calculateNextId());
+
+						// Speichere den Blocks auf der DB des Miners
+						blockManagerMiner.append(block);
+						blockManagerFirstUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerFirstUser.getIdFromLastBlock()));
 					}
+				} else {
+					System.out.println("Fehler: " + firstUserName + " ist nicht zur Wahl zugelassen!");
 				}
 
 //LoginZweiterBenutzer
-			} else if (args[0].equals("LoginZweiterBenutzer")) {			
-				Block block = null;
-				byte[] encryptedSecondUser = null;
-
+			} else if (args[0].equals("LoginZweiterBenutzer")) {
+				
+				// Überprüfe ob der User zur Wahl zugelassen ist
 				if (userEligible(secondUserName, secondUserPassword)) {
 					System.out.println(secondUserName + " ist zur Wahl zugelassen");
+					
+					// Überprüfe ob User bereits ein Keypair erzeugt hat
 					if (!userHasPublicKey(secondUserName)) {
 						System.out.println(secondUserName + " hat keinen Public Key, versuche ihn anzulegen");
 						initUser("SecondUser", secondUserName, secondUserPassword);
 					}
-					InitBlockchainManager bc2User = getUser("SecondUser", secondUserName, secondUserPassword);
-
-					encryptedSecondUser = RSA.encrypt(secondUserName.getBytes(), bc2User.getMyKeys().getPublickey(), INITBASE_USER);
-
-					byte[] blockData = generateBlockData(encryptedSecondUser, secondUserChoice);
-					byte[] encryptedBlockData = RSA.encrypt(blockData, getMinerPublicKey(), INITBASE_MINER);
-					block = new Block(encryptedBlockData, 0);
 
 					List<Block> myBlockList = blockManagerMiner.getBlockListFromId(blockManagerSecondUser.getIdFromLastBlock());
 					for (Block b : myBlockList) {
 						System.out.println("block = " + b);
 					}
+					
+					InitBlockchainManager bc2User = getUser("SecondUser", secondUserName, secondUserPassword);
+					byte[] encryptedSecondUser = RSA.encrypt(secondUserName.getBytes(), bc2User.getMyKeys().getPublickey(), INITBASE_USER);
 
-					// Speicherung der Bloecke fuer Miner und Benutzer
-					try {
-						if (blockManagerMiner.checkIfUserHasVoted(encryptedSecondUser)) {
-							System.out.println(secondUserName + " hat schon gewählt. Wahl wurde nicht übernommen");
-						} else {
-							block.setId(blockManagerMiner.calculateNextId());
-							blockManagerMiner.append(block); // Speichern des Blocks auf DB des Miners
-							blockManagerSecondUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerSecondUser.getIdFromLastBlock()));
-						}
-					} catch (SaveException e) {
-						e.printStackTrace();
-					} catch (NoEntityFoundException e) {
-						e.printStackTrace();
-					} catch (TargetListNotEmptyException e) {
-						e.printStackTrace();
+					if (blockManagerMiner.checkIfUserHasVoted(encryptedSecondUser)) {
+						System.out.println(secondUserName + " hat schon gewählt. Wahl wurde nicht übernommen");
+					} else {
+						// Generiere Block aus dem verschlüsselten Usernamen und dessen Wahl
+						byte[] blockData = generateBlockData(encryptedSecondUser, secondUserChoice);
+						byte[] encryptedBlockData = RSA.encrypt(blockData, getMinerPublicKey(), INITBASE_MINER);
+						
+						// Erzeuge Block und weise ihm eine ID zu
+						Block block = new Block(encryptedBlockData, 0);
+						block.setId(blockManagerMiner.calculateNextId());
+
+						// Speichere den Blocks auf der DB des Miners
+						blockManagerMiner.append(block);
+						blockManagerSecondUser.copyList(blockManagerMiner.getBlockListFromId(blockManagerSecondUser.getIdFromLastBlock()));
 					}
+				} else {
+					System.out.println("Fehler: " + secondUserName + " ist nicht zur Wahl zugelassen!");
 				}
 
 //Read
@@ -189,11 +180,12 @@ public class Main {
 
 //EvaluateElection
 			} else if (args[0].equals("EvaluateElection")) {
+				HashMap<String, Integer> electionResult = new HashMap<String, Integer>();
+
 				for (Block obj : blockManagerMiner.list()) {
 					String res = blockManagerMiner.getSelectedPartyFromBlock(obj);
 					electionResult.merge(res, 1, Integer::sum);
 				}
-
 				for (String party: electionResult.keySet()) {
 				    System.out.println(party.toString() + " " + electionResult.get(party).toString());
 				}
