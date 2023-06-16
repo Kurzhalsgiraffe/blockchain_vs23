@@ -87,7 +87,7 @@ public class Main {
 				HashMap<String, Integer> electionResult = new HashMap<String, Integer>();
 
 				for (Block obj : miner.blockManager.list()) {
-					String res = miner.blockManager.getSelectedPartyFromBlock(obj);
+					String res = miner.blockManager.getChoiceFromBlock(obj);
 					electionResult.merge(res, 1, Integer::sum);
 				}
 				for (String party: electionResult.keySet()) {
@@ -142,14 +142,15 @@ public class Main {
 					System.out.println("block = " + b);
 				}
 
-				InitBlockchainManager bc2User = new InitBlockchainManager(user.persistanceUnit, user.username, user.password);
-				byte[] encryptedSecondUser = RSA.encrypt(user.username.getBytes(), bc2User.getMyKeys().getPublickey(), INITBASE_USER);
-
-				if (miner.blockManager.checkIfUserHasVoted(encryptedSecondUser)) {
-					System.out.println(user.username + " hat schon gewaehlt. Wahl wurde nicht uebernommen");
+				InitBlockchainManager bcUser = new InitBlockchainManager(user.persistanceUnit, user.username, user.password);
+				byte[] encryptedUser = RSA.encrypt(user.username.getBytes(), bcUser.getMyKeys().getPublickey(), INITBASE_USER);
+				
+				String choiceOfEncryptedUser = miner.blockManager.getChoiceOfEncryptedUser(encryptedUser);
+				if (choiceOfEncryptedUser != "") {
+					System.out.println(user.username + " hat bereits " + choiceOfEncryptedUser + " gewaehlt. Wahl wurde nicht uebernommen");
 				} else {
 					// Generiere Block aus dem verschluesselten Usernamen und dessen Wahl
-					byte[] blockData = generateBlockData(encryptedSecondUser, user.choice);
+					byte[] blockData = generateBlockData(encryptedUser, user.choice);
 					byte[] encryptedBlockData = RSA.encrypt(blockData, miner.getPublicKey(), INITBASE_MINER);
 					
 					// Erzeuge Block und weise ihm eine ID zu

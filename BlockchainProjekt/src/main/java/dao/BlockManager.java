@@ -158,7 +158,7 @@ public class BlockManager {
 			this.entityManager.close();
 	}
 
-	public boolean checkIfUserHasVoted(byte[] encryptedUser) throws NoSuchRowException {
+	public String getChoiceOfEncryptedUser(byte[] encryptedUser) throws NoSuchRowException {
 		MyBlockchainuserKeysDao keysDao = new MyBlockchainuserKeysDao();
 		MyBlockchainuserKeys keys = keysDao.getMyKeys();
 
@@ -167,19 +167,23 @@ public class BlockManager {
 			byte[] decryptedText = RSA.decrypt(block.getDataAsObject(), keys.getPrivatekey());
 			
 			int encryptedUsernameLength = decryptedText[0];
+			int choiceLength = decryptedText[1];
 			if (encryptedUsernameLength < 0) {
 				encryptedUsernameLength += 255;
+			}
+			if (choiceLength < 0) {
+				choiceLength += 255;
 			}
 
 			byte[] encryptedUsername = Arrays.copyOfRange(decryptedText, 2, encryptedUsernameLength + 3);
 			if(Arrays.equals(encryptedUser, encryptedUsername)) {
-				return true;
+				return new String(Arrays.copyOfRange(decryptedText, 3+encryptedUsernameLength, choiceLength + encryptedUsernameLength + 3));
 			}
 		}
-		return false;
+		return "";
 	}
 	
-	public String getSelectedPartyFromBlock(Block block) throws NoSuchRowException {
+	public String getChoiceFromBlock(Block block) throws NoSuchRowException {
 		MyBlockchainuserKeysDao keysDao = new MyBlockchainuserKeysDao();
 		MyBlockchainuserKeys keys = keysDao.getMyKeys();
 
