@@ -141,12 +141,17 @@ public class BlockManager {
 		boolean flag = true;
 		int i = 0;
 		Block testBlock;
+		String previousHash;
+
 		for (i = 0; i < blockList.size(); i++) {
-			String previousHash = i == 0 ? "0" : blockList.get(i - 1).getHash();
+			if (i == 0) {
+			    previousHash = "0";
+			} else {
+			    previousHash = blockList.get(i - 1).getHash();
+			}
 		
 			testBlock = new Block(blockList.get(i).getDataAsObject(), blockList.get(i).getPrefix());
-			flag = blockList.get(i).getHash().equals(testBlock.getHash())
-					&& previousHash.equals(blockList.get(i).getPreviousHash());
+			flag = blockList.get(i).getHash().equals(testBlock.getHash()) && previousHash.equals(blockList.get(i).getPreviousHash());
 			if (!flag)
 				break;
 		}
