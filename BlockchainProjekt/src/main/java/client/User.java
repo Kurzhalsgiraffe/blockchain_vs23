@@ -1,5 +1,6 @@
 package client;
 
+import dao.BlockManager;
 import dao.BlockchainuserDao;
 import dao.InitBlockchainManager;
 import dao.InitializationAlreadyDoneException;
@@ -10,14 +11,14 @@ public class User {
 	public String username;
 	public String password;
 	public String choice;
-	public MyBlockManager blockManager;
+	public BlockManager blockManager;
 	
 	public User(String persistanceUnit, String username, String password, String choice) {
 		this.username = username;
 		this.password = password;
 		this.persistanceUnit = persistanceUnit;
 		this.choice = choice;
-		this.blockManager = new MyBlockManager(persistanceUnit, username, password);
+		this.blockManager = new BlockManager(persistanceUnit, username, password);
 	}
 	
 	public void permit() throws NoSuchRowException {

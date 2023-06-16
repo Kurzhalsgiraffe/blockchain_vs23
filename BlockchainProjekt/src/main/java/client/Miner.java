@@ -3,6 +3,7 @@ package client;
 import java.security.KeyPair;
 import java.security.PublicKey;
 
+import dao.BlockManager;
 import dao.InitBlockchainManagerMiner;
 import dao.InitializationAlreadyDoneException;
 import dao.MyBlockchainuserKeysDao;
@@ -12,14 +13,14 @@ public class Miner {
 	public String persistanceUnit;
 	public String username;
 	public String password;
-	public MyBlockManager blockManager;
+	public BlockManager blockManager;
 	public KeyPair keypair;
 	
 	public Miner(String persistanceUnit, String username, String password) {
 		this.username = username;
 		this.password = password;
 		this.persistanceUnit = persistanceUnit;
-		this.blockManager = new MyBlockManager(persistanceUnit, username, password);
+		this.blockManager = new BlockManager(persistanceUnit, username, password);
 	}
 	
 	public void init() throws NoSuchRowException, InitializationAlreadyDoneException {

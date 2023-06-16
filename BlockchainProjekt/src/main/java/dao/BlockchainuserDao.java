@@ -75,7 +75,6 @@ public class BlockchainuserDao {
 		}
 		BigDecimal nextId = getIdFromLastBlock();
 		Blockchainuser bcUser = new Blockchainuser(username, password);
-//		bcUser.setId(nextId.add(new BigDecimal(1)));
 		bcUser.setId(calculateNextId());
 		em.persist(bcUser);
 		ta.commit();

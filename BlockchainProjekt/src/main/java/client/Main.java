@@ -24,14 +24,14 @@ public class Main {
 
 	private final static Miner miner = new Miner("BlockchainMiner", "minerProjektVS_SS23", "minerProjektVS_SS23");
 	private final static User firstUser = new User("FirstUser", "hantscma", "hantscma", "Gruene");
-	private final static User secondUser = new User("SecondUser", "rothnina", "rothnina", "Tierschutzpartei");
+	private final static User secondUser = new User("SecondUser", "rothnina", "rothnina", "FDP");
 	private final static User thirdUser = new User("ThirdUser", "heinzelu", "heinzelu", "CDU");
 
 	public static void usage() {
 		System.out.println("Usage: java Main EinrichtenMiner");			// Schritt 0
 		System.out.println("Usage: java Main ZulassungUser");			// Schritt 1
 		System.out.println("Usage: java Main LoginErsterBenutzer");		// Schritt 2
-		System.out.println("Usage: java Main VoteZweiterBenutzer");	// Schritt 3
+		System.out.println("Usage: java Main VoteZweiterBenutzer");	    // Schritt 3
 		System.out.println("Usage: java Main Read");					// beliebig nach Schritt 2
 		System.out.println("Usage: java Main Validate");				// beliebig nach Schritt 2
 		System.out.println("Usage: java Main EvaluateElection");		// beliebig nach Schritt 2
@@ -65,26 +65,15 @@ public class Main {
 
 //Read
 			} else if (args[0].equals("Read")) {
-				// Auslesen der Bloecke fuer Miner
 				System.out.println("---------------------------------");
 				System.out.println("Ausgabe der Blockliste des Miners");
 				for (Block obj : miner.blockManager.list())
 					System.out.println("obj = " + obj);
 
 				System.out.println("---------------------------------");
-				System.out.println("---------------------------------");
-				System.out.println("Ausgabe der Blockliste des Miners mit Beschraenkung auf Daten");
-				for (Block obj : miner.blockManager.list()) {
-					System.out.println("\nDatum als Bytearray = " + Arrays.toString(obj.getDataAsObject()));
-					System.out.println("von Bytearray zurueckkonvertiertes Datum als Text = " + new String(obj.getDataAsObject(), StandardCharsets.UTF_8));
-				}
-
-				System.out.println("---------------------------------");
-				System.out.println("---------------------------------");
-				System.out.println("Ausgabe der Blockliste des Users mit Beschraenkung auf Daten");
+				System.out.println("Ausgabe der Blockliste des firstUser");
 				for (Block obj : firstUser.blockManager.list()) {
-					System.out.println("\nDatum als Bytearray = " + Arrays.toString(obj.getDataAsObject()));
-					System.out.println("von Bytearray zurueckkonvertiertes Datum als Text = " + new String(obj.getDataAsObject(), StandardCharsets.UTF_8));
+					System.out.println("\nDatum als Bytearray = " + obj);
 				}
 
 //Validate
@@ -144,7 +133,7 @@ public class Main {
 				
 				// ueberpruefe ob User bereits ein Keypair erzeugt hat
 				if (!user.hasPublicKey()) {
-					System.out.println(user.username + " hat keinen Public Key, versuche ihn anzulegen");
+					System.out.println(user.username + " hat keinen Public Key, initialisiere user");
 					user.init();
 				}
 

@@ -8,31 +8,52 @@ import java.util.Map;
 
 import javax.persistence.*;
 
+import client.RSA;
+
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 
 
 
 import model.block.Block;
+import model.entity.MyBlockchainuserKeys;
 
-public abstract class BlockManager {
-
-	// Zur inhaltlichen Bearbeitung der Daten im Block
-	// (Rueckgabewert int beispielsweise fuer Berechung eines Kontosaldos zu einer
-	// "UserId", welche "intern benoetigt wird fuer die Kontozuordnung
-	// Ggf. Ergaenzung um Versionen mit Rueckgabetype "void" bzw. anderen Datentypen
-	// oder Instanzen
-	public abstract String getSelectedPartyFromBlock(Block block) throws Exception;
-
-	public abstract BigDecimal calculateNextId();
-
-	public abstract String getInstanceId();
-
-	public abstract String getUserId();
-
-	public abstract Date getInsertDate();
-
+public class BlockManager {
 	private EntityManager em = null;
+
+	public String getSelectedPartyFromBlock(Block block) throws NoSuchRowException {
+		MyBlockchainuserKeysDao keysDao = new MyBlockchainuserKeysDao();
+		MyBlockchainuserKeys keys = keysDao.getMyKeys();
+
+		byte[] decryptedText = RSA.decrypt(block.getDataAsObject(), keys.getPrivatekey());
+		
+		int encryptedUsernameLength = decryptedText[0];
+		int choiceLength = decryptedText[1];
+		if (encryptedUsernameLength < 0) {
+			encryptedUsernameLength += 255;
+		}
+		if (choiceLength < 0) {
+			choiceLength += 255;
+		}
+		return new String(Arrays.copyOfRange(decryptedText, 3+encryptedUsernameLength, choiceLength + encryptedUsernameLength + 3));
+	}
+
+	public BigDecimal calculateNextId() {
+		return (BigDecimal) getEntityManager().createNativeQuery("select block_seq.nextval from dual").getSingleResult();
+	}
+
+	public String getInstanceId() {
+		return (String) getEntityManager().createNativeQuery("select value from v$parameter where upper(name) = 'INSTANCE_NAME'").getSingleResult();
+	}
+
+	public String getUserId() {
+		return (String) getEntityManager().createNativeQuery("select user from dual").getSingleResult();
+	}
+
+	public Date getInsertDate() {
+		return (Date) getEntityManager().createNativeQuery("select sysdate from dual").getSingleResult();
+	}
 
 	public BlockManager(String persistenceUnit, String userId, String password) {
 		Map<String, String> addedOrOverridenProperties = new HashMap<String, String>();
@@ -52,8 +73,7 @@ public abstract class BlockManager {
 	}
 
 	public List<Block> list() {
-		em.clear(); // Um zu vermeiden, dass Programm bereits zuvor eingelesene Liste (mit alten
-					// Referenzen) nutzt
+		em.clear(); // Um zu vermeiden, dass Programm bereits zuvor eingelesene Liste (mit alten Referenzen) nutzt
 		return em.createQuery("SELECT obj from Block obj ORDER BY obj.id asc", Block.class).getResultList();
 	}
 
@@ -65,37 +85,28 @@ public abstract class BlockManager {
 			return obj;
 	}
 
-	public void copyList(List<Block> fromList) throws TargetListNotEmptyException {
+	public void copyList(List<Block> fromList) throws TargetListNotEmptyException, SaveException, NoEntityFoundException {
 		if (fromList.size() == 0) {
 			return;
 		}
 		for (Block blockObj : fromList) {
 			Block newBlock = blockObj.copy();
-			try {
-				append(newBlock);
-			} catch (SaveException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (NoEntityFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			append(newBlock);
 		}
-	}
-
-	public BigDecimal getIdFromLastBlock() {
-		return (BigDecimal) em.createQuery("SELECT coalesce(max(x.id), 0) FROM Block x").getSingleResult();
 	}
 
 	public BigDecimal getIdFromFirstBlock() {
 		return (BigDecimal) em.createQuery("SELECT coalesce(min(x.id), 0) FROM Block x").getSingleResult();
 	}
 
+	public BigDecimal getIdFromLastBlock() {
+		return (BigDecimal) em.createQuery("SELECT coalesce(max(x.id), 0) FROM Block x").getSingleResult();
+	}
+
 	public String getHashFromLastBlock() {
 		try {
 			return (String) em
-					.createQuery("SELECT obj.hash FROM Block obj WHERE obj.id IN (SELECT max(x.id) FROM Block x)")
-					.getSingleResult();
+					.createQuery("SELECT obj.hash FROM Block obj WHERE obj.id IN (SELECT max(x.id) FROM Block x)").getSingleResult();
 		} catch (NoResultException e) {
 			return "0";
 		}
@@ -107,8 +118,7 @@ public abstract class BlockManager {
 				Block.class).setParameter(1, previousHash).getResultList();
 	}
 
-	// Fuegt Block am Ende der Kette an. Falls Kette leer ist wird
-	// "previousHash" (einmalig) auf "0" gesetzt
+	// Fuegt Block am Ende der Kette an. Falls Kette leer ist wird "previousHash" (einmalig) auf "0" gesetzt
 	public void append(Block arg) throws SaveException, NoEntityFoundException {
 		int size = getListSize();
 		String lastHash = size > 0 ? getHashFromLastBlock() : "0";
@@ -178,5 +188,32 @@ public abstract class BlockManager {
 		if (em != null)
 			em.close();
 	}
+	
+	public boolean checkIfUserHasVoted(byte[] encryptedUser) {
+		MyBlockchainuserKeysDao keysDao = new MyBlockchainuserKeysDao();
+		MyBlockchainuserKeys keys = null;
+		try {
+			keys = keysDao.getMyKeys();
+		} catch (NoSuchRowException e) {
+			e.printStackTrace();
+		}
 
+		List<Block> blockList = list();
+		for (Block block : blockList){
+			byte[] decryptedText = RSA.decrypt(block.getDataAsObject(), keys.getPrivatekey());
+			
+			int encryptedUsernameLength = decryptedText[0];
+			if (encryptedUsernameLength < 0) {
+				encryptedUsernameLength += 255;
+			}
+
+			byte[] encryptedUsername = Arrays.copyOfRange(decryptedText, 2, encryptedUsernameLength + 3);
+
+
+			if(Arrays.equals(encryptedUser, encryptedUsername)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
