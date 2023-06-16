@@ -20,7 +20,7 @@ import model.block.Block;
 import model.entity.MyBlockchainuserKeys;
 
 public class BlockManager {
-	private EntityManager em = null;
+	private EntityManager entityManager = null;
 
 	public String getSelectedPartyFromBlock(Block block) throws NoSuchRowException {
 		MyBlockchainuserKeysDao keysDao = new MyBlockchainuserKeysDao();
@@ -40,19 +40,19 @@ public class BlockManager {
 	}
 
 	public BigDecimal calculateNextId() {
-		return (BigDecimal) getEntityManager().createNativeQuery("select block_seq.nextval from dual").getSingleResult();
+		return (BigDecimal) this.entityManager.createNativeQuery("select block_seq.nextval from dual").getSingleResult();
 	}
 
 	public String getInstanceId() {
-		return (String) getEntityManager().createNativeQuery("select value from v$parameter where upper(name) = 'INSTANCE_NAME'").getSingleResult();
+		return (String) this.entityManager.createNativeQuery("select value from v$parameter where upper(name) = 'INSTANCE_NAME'").getSingleResult();
 	}
 
 	public String getUserId() {
-		return (String) getEntityManager().createNativeQuery("select user from dual").getSingleResult();
+		return (String) this.entityManager.createNativeQuery("select user from dual").getSingleResult();
 	}
 
 	public Date getInsertDate() {
-		return (Date) getEntityManager().createNativeQuery("select sysdate from dual").getSingleResult();
+		return (Date) this.entityManager.createNativeQuery("select sysdate from dual").getSingleResult();
 	}
 
 	public BlockManager(String persistenceUnit, String userId, String password) {
@@ -61,24 +61,20 @@ public class BlockManager {
 		addedOrOverridenProperties.put("hibernate.connection.password", password);
 
 		EntityManagerFactory emf = Persistence.createEntityManagerFactory(persistenceUnit, addedOrOverridenProperties);
-		em = emf.createEntityManager();
+		this.entityManager = emf.createEntityManager();
 	}
 
-	protected EntityManager getEntityManager() {
-		return em;
+	public List<Block> list() {
+		this.entityManager.clear(); // Um zu vermeiden, dass Programm bereits zuvor eingelesene Liste (mit alten Referenzen) nutzt
+		return this.entityManager.createQuery("SELECT obj from Block obj ORDER BY obj.id asc", Block.class).getResultList();
 	}
 
 	public int getListSize() {
 		return list().size();
 	}
 
-	public List<Block> list() {
-		em.clear(); // Um zu vermeiden, dass Programm bereits zuvor eingelesene Liste (mit alten Referenzen) nutzt
-		return em.createQuery("SELECT obj from Block obj ORDER BY obj.id asc", Block.class).getResultList();
-	}
-
 	public Block findByPrimaryKey(long primaryKey) throws NoSuchRowException {
-		Block obj = em.find(Block.class, primaryKey);
+		Block obj = this.entityManager.find(Block.class, primaryKey);
 		if (obj == null)
 			throw new NoSuchRowException();
 		else
@@ -96,24 +92,23 @@ public class BlockManager {
 	}
 
 	public BigDecimal getIdFromFirstBlock() {
-		return (BigDecimal) em.createQuery("SELECT coalesce(min(x.id), 0) FROM Block x").getSingleResult();
+		return (BigDecimal) this.entityManager.createQuery("SELECT coalesce(min(x.id), 0) FROM Block x").getSingleResult();
 	}
 
 	public BigDecimal getIdFromLastBlock() {
-		return (BigDecimal) em.createQuery("SELECT coalesce(max(x.id), 0) FROM Block x").getSingleResult();
+		return (BigDecimal) this.entityManager.createQuery("SELECT coalesce(max(x.id), 0) FROM Block x").getSingleResult();
 	}
 
 	public String getHashFromLastBlock() {
 		try {
-			return (String) em
-					.createQuery("SELECT obj.hash FROM Block obj WHERE obj.id IN (SELECT max(x.id) FROM Block x)").getSingleResult();
+			return (String) this.entityManager.createQuery("SELECT obj.hash FROM Block obj WHERE obj.id IN (SELECT max(x.id) FROM Block x)").getSingleResult();
 		} catch (NoResultException e) {
 			return "0";
 		}
 	}
 
 	public List<Block> getBlockListFromPreviousHash(String previousHash) {
-		return em.createQuery("SELECT obj FROM Block obj "
+		return this.entityManager.createQuery("SELECT obj FROM Block obj "
 				+ " WHERE obj.id >= ( SELECT x.id FROM Block x WHERE x.previousHash = ?1 ) ORDER BY obj.insertDate asc",
 				Block.class).setParameter(1, previousHash).getResultList();
 	}
@@ -129,13 +124,13 @@ public class BlockManager {
 	private void save(Block arg) throws SaveException {
 		if (arg == null)
 			throw new SaveException();
-		EntityTransaction tx = em.getTransaction();
+		EntityTransaction tx = this.entityManager.getTransaction();
 		tx.begin();
 		// ... mit simpler Datenkodierung (zur Demonstration)
 		arg.setUserId(getUserId());
 		arg.setInstanceId(getInstanceId());
 		arg.setInsertDate(getInsertDate());
-		em.persist(arg);
+		this.entityManager.persist(arg);
 		try {
 			tx.commit();
 		} catch (javax.persistence.RollbackException e) {
@@ -144,40 +139,31 @@ public class BlockManager {
 	}
 
 	public List<Block> getBlockListFromId(BigDecimal id) {
-		return em.createQuery("SELECT obj FROM Block obj WHERE obj.id > ?1 ORDER BY id asc", Block.class)
+		return this.entityManager.createQuery("SELECT obj FROM Block obj WHERE obj.id > ?1 ORDER BY id asc", Block.class)
 				.setParameter(1, id).getResultList();
 	}
 
 	public List<Block> getLastBlock() {
-		return em.createQuery("SELECT obj FROM Block obj "
+		return this.entityManager.createQuery("SELECT obj FROM Block obj "
 				+ " WHERE obj.id > ALL ( SELECT x.id FROM Block x WHERE x.hash = ?1 ) ORDER BY obj.insertDate asc",
 				Block.class).getResultList();
 	}
 
 	public List<Block> getBlockListFromHash(String hash) {
-		return em.createQuery("SELECT obj FROM Block obj WHERE obj.hash = ?1", Block.class).setParameter(1, hash)
+		return this.entityManager.createQuery("SELECT obj FROM Block obj WHERE obj.hash = ?1", Block.class).setParameter(1, hash)
 				.getResultList();
 	}
 
-	public BlockValidator validateBlockChain(List<Block> blockList) {
+	public BlockValidator validateBlockChain(List<Block> blockList) throws NoSuchAlgorithmException, UnsupportedEncodingException {
 		boolean flag = true;
 		int i = 0;
 		Block testBlock;
 		for (i = 0; i < blockList.size(); i++) {
 			String previousHash = i == 0 ? "0" : blockList.get(i - 1).getHash();
-			try {
-				testBlock = new Block(blockList.get(i).getDataAsObject(), blockList.get(i).getPrefix());
-				flag = blockList.get(i).getHash().equals(testBlock.getHash())
-						&& previousHash.equals(blockList.get(i).getPreviousHash());
-				if (!flag)
-					break;
-			} catch (NoSuchAlgorithmException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		
+			testBlock = new Block(blockList.get(i).getDataAsObject(), blockList.get(i).getPrefix());
+			flag = blockList.get(i).getHash().equals(testBlock.getHash())
+					&& previousHash.equals(blockList.get(i).getPreviousHash());
 			if (!flag)
 				break;
 		}
@@ -185,18 +171,13 @@ public class BlockManager {
 	}
 
 	public void close() {
-		if (em != null)
-			em.close();
+		if (this.entityManager != null)
+			this.entityManager.close();
 	}
-	
-	public boolean checkIfUserHasVoted(byte[] encryptedUser) {
+
+	public boolean checkIfUserHasVoted(byte[] encryptedUser) throws NoSuchRowException {
 		MyBlockchainuserKeysDao keysDao = new MyBlockchainuserKeysDao();
-		MyBlockchainuserKeys keys = null;
-		try {
-			keys = keysDao.getMyKeys();
-		} catch (NoSuchRowException e) {
-			e.printStackTrace();
-		}
+		MyBlockchainuserKeys keys = keysDao.getMyKeys();
 
 		List<Block> blockList = list();
 		for (Block block : blockList){
@@ -208,8 +189,6 @@ public class BlockManager {
 			}
 
 			byte[] encryptedUsername = Arrays.copyOfRange(decryptedText, 2, encryptedUsernameLength + 3);
-
-
 			if(Arrays.equals(encryptedUser, encryptedUsername)) {
 				return true;
 			}
