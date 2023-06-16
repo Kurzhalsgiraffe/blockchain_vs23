@@ -3,9 +3,7 @@ package client;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -28,13 +26,14 @@ public class Main {
 	private final static User thirdUser = new User("ThirdUser", "heinzelu", "heinzelu", "CDU");
 
 	public static void usage() {
-		System.out.println("Usage: java Main EinrichtenMiner");			// Schritt 0
-		System.out.println("Usage: java Main ZulassungUser");			// Schritt 1
-		System.out.println("Usage: java Main LoginErsterBenutzer");		// Schritt 2
-		System.out.println("Usage: java Main VoteZweiterBenutzer");	    // Schritt 3
-		System.out.println("Usage: java Main Read");					// beliebig nach Schritt 2
-		System.out.println("Usage: java Main Validate");				// beliebig nach Schritt 2
-		System.out.println("Usage: java Main EvaluateElection");		// beliebig nach Schritt 2
+		System.out.println("Usage: java Main EinrichtenMiner");				// Schritt 0
+		System.out.println("Usage: java Main ZulassungUser");				// Schritt 1
+		System.out.println("Usage: java Main LoginErsterBenutzer");			// Schritt 2
+		System.out.println("Usage: java Main VoteZweiterBenutzer");	    	// Schritt 3
+		System.out.println("Usage: java Main Read");						// beliebig nach Schritt 2
+		System.out.println("Usage: java Main Validate");					// beliebig nach Schritt 2
+		System.out.println("Usage: java Main EvaluateElection");			// beliebig nach Schritt 2
+		System.out.println("Usage: java Main PruefeWahlErsterBenutzer");	// beliebig nach Schritt 2
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -85,26 +84,30 @@ public class Main {
 //EvaluateElection
 			} else if (args[0].equals("EvaluateElection")) {
 				HashMap<String, Integer> electionResult = new HashMap<String, Integer>();
+				int votes = 0;
 
 				for (Block obj : miner.blockManager.list()) {
 					String res = miner.blockManager.getChoiceFromBlock(obj);
 					electionResult.merge(res, 1, Integer::sum);
+					votes += 1;
 				}
+				
 				for (String party: electionResult.keySet()) {
-				    System.out.println(party.toString() + " " + electionResult.get(party).toString());
+				    System.out.println(party + " " + electionResult.get(party) + " (" + ((float)electionResult.get(party) / votes) * 100 + "%)");
 				}
 
-//PruefeAbgegebeneWahl ErsterBenutzer
-			} else if (args[0].equals("PruefeAbgegebeneWahl ErsterBenutzer")) {
-				for (Block obj : miner.blockManager.list()) {
-					// lies private Key von Erstem Benutzer
-					// lies private Key von Miner
-					// durchsuche Block  und dechiffriere mit sk von Miner
-					// suche nach User-LKennung des betreffenden Waehlers ...
-					// Ergebnis:
-					// 1. 1, falls Waehler Stimme abgegeben hat
-					// 2. 0, falls Waehler nicht gewaehlt hat
+//PruefeWahlErsterBenutzer
+			} else if (args[0].equals("PruefeWahlErsterBenutzer")) {
+				InitBlockchainManager bcUser = new InitBlockchainManager(firstUser.persistanceUnit, firstUser.username, firstUser.password);
+				byte[] encryptedUser = RSA.encrypt(firstUser.username.getBytes(), bcUser.getMyKeys().getPublickey(), INITBASE_USER);
+				String choiceOfEncryptedUser = miner.blockManager.getChoiceOfEncryptedUser(encryptedUser);
+				
+				if (choiceOfEncryptedUser != "") {
+					System.out.println(firstUser.username + " hat die Partei \""+ miner.blockManager.getChoiceOfEncryptedUser(encryptedUser) + "\" gewählt");
+				} else {
+					System.out.println(firstUser.username + " hat noch nicht gewählt");
 				}
+				
 			} else {
 				usage();
 			}
