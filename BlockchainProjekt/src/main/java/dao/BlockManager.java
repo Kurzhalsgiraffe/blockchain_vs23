@@ -22,23 +22,6 @@ import model.entity.MyBlockchainuserKeys;
 public class BlockManager {
 	private EntityManager entityManager = null;
 
-	public String getSelectedPartyFromBlock(Block block) throws NoSuchRowException {
-		MyBlockchainuserKeysDao keysDao = new MyBlockchainuserKeysDao();
-		MyBlockchainuserKeys keys = keysDao.getMyKeys();
-
-		byte[] decryptedText = RSA.decrypt(block.getDataAsObject(), keys.getPrivatekey());
-		
-		int encryptedUsernameLength = decryptedText[0];
-		int choiceLength = decryptedText[1];
-		if (encryptedUsernameLength < 0) {
-			encryptedUsernameLength += 255;
-		}
-		if (choiceLength < 0) {
-			choiceLength += 255;
-		}
-		return new String(Arrays.copyOfRange(decryptedText, 3+encryptedUsernameLength, choiceLength + encryptedUsernameLength + 3));
-	}
-
 	public BigDecimal calculateNextId() {
 		return (BigDecimal) this.entityManager.createNativeQuery("select block_seq.nextval from dual").getSingleResult();
 	}
@@ -194,5 +177,22 @@ public class BlockManager {
 			}
 		}
 		return false;
+	}
+	
+	public String getSelectedPartyFromBlock(Block block) throws NoSuchRowException {
+		MyBlockchainuserKeysDao keysDao = new MyBlockchainuserKeysDao();
+		MyBlockchainuserKeys keys = keysDao.getMyKeys();
+
+		byte[] decryptedText = RSA.decrypt(block.getDataAsObject(), keys.getPrivatekey());
+		
+		int encryptedUsernameLength = decryptedText[0];
+		int choiceLength = decryptedText[1];
+		if (encryptedUsernameLength < 0) {
+			encryptedUsernameLength += 255;
+		}
+		if (choiceLength < 0) {
+			choiceLength += 255;
+		}
+		return new String(Arrays.copyOfRange(decryptedText, 3+encryptedUsernameLength, choiceLength + encryptedUsernameLength + 3));
 	}
 }
