@@ -33,7 +33,7 @@ public class Main {
 		System.out.println("Usage: java Main VoteDritterBenutzer");	    	// Schritt 3
 		System.out.println("Usage: java Main Read");						// beliebig nach Schritt 2
 		System.out.println("Usage: java Main Validate");					// beliebig nach Schritt 2
-		System.out.println("Usage: java Main EvaluateElection");			// beliebig nach Schritt 2
+		System.out.println("Usage: java Main WahlAuswerten");				// beliebig nach Schritt 2
 		System.out.println("Usage: java Main PruefeWahlErsterBenutzer");	// beliebig nach Schritt 2
 	}
 
@@ -89,8 +89,8 @@ public class Main {
 				BlockValidator blockvalidator = miner.blockManager.validateBlockChain(miner.blockManager.list());
 				System.out.println("blockvalidator = " + blockvalidator);
 
-//EvaluateElection
-			} else if (args[0].equals("EvaluateElection")) {
+//WahlAuswerten
+			} else if (args[0].equals("WahlAuswerten")) {
 				HashMap<String, Integer> electionResult = new HashMap<String, Integer>();
 				int votes = 0;
 
