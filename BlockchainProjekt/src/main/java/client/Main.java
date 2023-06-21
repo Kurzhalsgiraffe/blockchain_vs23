@@ -20,16 +20,17 @@ public class Main {
 	public final static int INITBASE_MINER = 4096;
 	public final static int INITBASE_USER = 1024;
 
-	private final static Miner miner = new Miner("BlockchainMiner", "minerProjektVS_SS23", "minerProjektVS_SS23");
-	private final static User firstUser = new User("FirstUser", "hantscma", "hantscma", "Gruene");
-	private final static User secondUser = new User("SecondUser", "rothnina", "rothnina", "FDP");
-	private final static User thirdUser = new User("ThirdUser", "heinzelu", "heinzelu", "CDU");
+	private final static MinerManager miner = new MinerManager("BlockchainMiner", "minerProjektVS_SS23", "minerProjektVS_SS23");
+	private final static UserManager firstUser = new UserManager("FirstUser", "hantscma", "hantscma", "Gruene");
+	private final static UserManager secondUser = new UserManager("SecondUser", "rothnina", "rothnina", "Röhrle");
+	private final static UserManager thirdUser = new UserManager("ThirdUser", "heinzelu", "heinzelu", "CDU");
 
 	public static void usage() {
-		System.out.println("Usage: java Main EinrichtenMiner");				// Schritt 0
-		System.out.println("Usage: java Main ZulassungUser");				// Schritt 1
+		System.out.println("Usage: java Main Einrichten");					// Schritt 0
+		System.out.println("Usage: java Main Zulassung");					// Schritt 1
 		System.out.println("Usage: java Main LoginErsterBenutzer");			// Schritt 2
 		System.out.println("Usage: java Main VoteZweiterBenutzer");	    	// Schritt 3
+		System.out.println("Usage: java Main VoteDritterBenutzer");	    	// Schritt 3
 		System.out.println("Usage: java Main Read");						// beliebig nach Schritt 2
 		System.out.println("Usage: java Main Validate");					// beliebig nach Schritt 2
 		System.out.println("Usage: java Main EvaluateElection");			// beliebig nach Schritt 2
@@ -44,12 +45,15 @@ public class Main {
 			usage();
 		} else {
 
-//EinrichtenMiner
-			if (args[0].equals("EinrichtenMiner")) {
+//Einrichten
+			if (args[0].equals("Einrichten")) {
 			miner.init();
+			firstUser.init();
+			secondUser.init();
+			thirdUser.init();
 
-//ZulassungUser
-			} else if (args[0].equals("ZulassungUser")) {
+//Zulassung
+			} else if (args[0].equals("Zulassung")) {
 				firstUser.permit();
 				secondUser.permit();
 				thirdUser.permit();
@@ -61,6 +65,10 @@ public class Main {
 //VoteZweiterBenutzer
 			} else if (args[0].equals("VoteZweiterBenutzer")) {
 				vote(secondUser);
+
+//VoteDritterBenutzer
+			} else if (args[0].equals("VoteDritterBenutzer")) {
+				vote(thirdUser);
 
 //Read
 			} else if (args[0].equals("Read")) {
@@ -128,7 +136,7 @@ public class Main {
 		return blockData;
 	}
 	
-	public static void vote(User user) {
+	public static void vote(UserManager user) {
 		// ueberpruefe ob der User zur Wahl zugelassen ist
 		try {
 			if (user.isEligible()) {
@@ -138,6 +146,8 @@ public class Main {
 				if (!user.hasPublicKey()) {
 					System.out.println(user.username + " hat keinen Public Key, initialisiere user");
 					user.init();
+				} else {
+					System.out.println(user.username + ": Public Key gefunden");
 				}
 
 				List<Block> myBlockList = miner.blockManager.getBlockListFromId(user.blockManager.getIdFromLastBlock());

@@ -9,14 +9,14 @@ import dao.InitializationAlreadyDoneException;
 import dao.MyBlockchainuserKeysDao;
 import dao.NoSuchRowException;
 
-public class Miner {
+public class MinerManager {
 	public String persistanceUnit;
 	public String username;
 	public String password;
 	public BlockManager blockManager;
 	public KeyPair keypair;
 	
-	public Miner(String persistanceUnit, String username, String password) {
+	public MinerManager(String persistanceUnit, String username, String password) {
 		this.username = username;
 		this.password = password;
 		this.persistanceUnit = persistanceUnit;

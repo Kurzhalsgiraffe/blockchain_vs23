@@ -6,14 +6,14 @@ import dao.InitBlockchainManager;
 import dao.InitializationAlreadyDoneException;
 import dao.NoSuchRowException;
 
-public class User {
+public class UserManager {
 	public String persistanceUnit;
 	public String username;
 	public String password;
 	public String choice;
 	public BlockManager blockManager;
 	
-	public User(String persistanceUnit, String username, String password, String choice) {
+	public UserManager(String persistanceUnit, String username, String password, String choice) {
 		this.username = username;
 		this.password = password;
 		this.persistanceUnit = persistanceUnit;
