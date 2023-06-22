@@ -22,13 +22,13 @@ public class Main {
 
 	private final static MinerManager miner = new MinerManager("BlockchainMiner", "minerProjektVS_SS23", "minerProjektVS_SS23");
 	private final static UserManager firstUser = new UserManager("FirstUser", "hantscma", "hantscma", "Gruene");
-	private final static UserManager secondUser = new UserManager("SecondUser", "rothnina", "rothnina", "Röhrle");
+	private final static UserManager secondUser = new UserManager("SecondUser", "rothnina", "rothnina", "FDP");
 	private final static UserManager thirdUser = new UserManager("ThirdUser", "heinzelu", "heinzelu", "CDU");
 
 	public static void usage() {
 		System.out.println("Usage: java Main Einrichten");					// Schritt 0
 		System.out.println("Usage: java Main Zulassung");					// Schritt 1
-		System.out.println("Usage: java Main LoginErsterBenutzer");			// Schritt 2
+		System.out.println("Usage: java Main VoteErsterBenutzer");			// Schritt 2
 		System.out.println("Usage: java Main VoteZweiterBenutzer");	    	// Schritt 3
 		System.out.println("Usage: java Main VoteDritterBenutzer");	    	// Schritt 3
 		System.out.println("Usage: java Main Read");						// beliebig nach Schritt 2
@@ -38,8 +38,6 @@ public class Main {
 	}
 
 	public static void main(String[] args) throws Exception {
-
-		// new ElectionGui();
 
 		if (args.length < 1) {
 			usage();
